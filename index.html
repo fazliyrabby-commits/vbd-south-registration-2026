@@ -1,199 +1,560 @@
 <!DOCTYPE html>
-<html lang="bn">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>VBD Dhaka District South - Registration Portal</title>
+    <title>VBD Dhaka District South | Official Event Registration Portal</title>
+    <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Google Fonts: Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- Font Awesome for Clean Corporate Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                    colors: {
+                        corporateNavy: '#0B132B',
+                        corporateBlue: '#1C2541',
+                        accentGold: '#D4AF37',
+                        slateDark: '#1E293B',
+                    }
+                }
+            }
+        }
+    </script>
     <style>
-        body { font-family: 'Inter', sans-serif; }
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(15px); }
+        .conditional-panel {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            overflow: hidden;
+        }
+        .hidden-panel {
+            display: none;
+            opacity: 0;
+            transform: translateY(-6px);
+        }
+        .visible-panel {
+            display: block;
+            opacity: 1;
+            transform: translateY(0);
+            animation: fadeInSlide 0.25s ease-out forwards;
+        }
+        @keyframes fadeInSlide {
+            from { opacity: 0; transform: translateY(-8px); }
             to { opacity: 1; transform: translateY(0); }
         }
-        .animate-fade-in {
-            animation: fadeIn 0.6s ease-out forwards;
+        .role-card input:checked + .role-card-content {
+            border-color: #0B132B;
+            background-color: #F8FAFC;
+            box-shadow: 0 4px 12px rgba(11, 19, 43, 0.08);
+        }
+        .role-card input:checked + .role-card-content .check-indicator {
+            background-color: #0B132B;
+            border-color: #0B132B;
+            color: #FFFFFF;
         }
     </style>
 </head>
-<body class="bg-slate-950 text-slate-100 min-h-screen py-12 px-4 flex items-center justify-center">
+<body class="bg-slate-50 text-slate-900 antialiased min-h-screen flex flex-col">
 
-    <div class="max-w-3xl w-full bg-slate-900 rounded-3xl shadow-2xl border border-slate-800 overflow-hidden animate-fade-in">
-        
-        <!-- Header Banner Area -->
-        <div class="relative bg-gradient-to-r from-teal-900 via-indigo-950 to-slate-900 p-8 md:p-10 text-center border-b border-slate-800">
-            <div class="absolute inset-0 opacity-20 bg-[radial-gradient(#14b8a6_1px,transparent_1px)] [background-size:16px_16px]"></div>
-            <div class="relative z-10">
-                <span class="bg-teal-500/10 text-teal-400 border border-teal-500/30 text-xs font-bold px-3 py-1 rounded-full uppercase tracking-widest">
-                    VBD Dhaka District South
-                </span>
-                <h1 class="text-3xl md:text-4xl font-black tracking-tight text-white mt-3 mb-2">Grand Assembly & Inauguration</h1>
-                <p class="text-slate-300 text-sm md:text-base font-medium">Closing Assembly, Upazila Board Inauguration & Cultural Gala</p>
-                <div class="mt-4 flex justify-center items-center gap-3 text-xs text-teal-300 font-semibold">
-                    <span class="bg-slate-800/80 px-3 py-1.5 rounded-lg border border-slate-700">📅 Date: December 12, 2026</span>
-                    <span class="bg-slate-800/80 px-3 py-1.5 rounded-lg border border-slate-700">📍 Venue: Dhaka</span>
+    <!-- Top Executive Header Bar -->
+    <header class="bg-corporateNavy text-white border-b border-slate-800 sticky top-0 z-40 shadow-sm">
+        <div class="max-w-4xl mx-auto px-6 py-3 flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+                <div class="w-8 h-8 rounded bg-slate-800 border border-slate-700 flex items-center justify-center text-accentGold font-bold text-xs">
+                    VBD
                 </div>
+                <div>
+                    <span class="block text-xs font-semibold tracking-wider uppercase text-slate-300">Volunteer for Bangladesh</span>
+                    <span class="block text-sm font-bold text-white">Dhaka District South</span>
+                </div>
+            </div>
+            <div class="text-xs font-medium text-slate-300 bg-slate-800/80 px-3 py-1.5 rounded-lg border border-slate-700">
+                <i class="fa-regular fa-calendar-days mr-1.5 text-accentGold"></i> December 12, 2026
             </div>
         </div>
+    </header>
 
-        <!-- Form Body -->
-        <form id="vbdRegistrationForm" class="p-6 md:p-10 space-y-6">
-            
-            <!-- Basic Information -->
-            <div class="space-y-4">
-                <h3 class="text-base font-semibold text-teal-400 border-b border-slate-800 pb-2 flex items-center gap-2">
-                    <span>👤</span> ১. সাধারণ তথ্য (Basic Information)
-                </h3>
-                
-                <div>
-                    <label class="block text-sm font-medium text-slate-300 mb-1.5">পূর্ণ নাম (Full Name) <span class="text-red-400">*</span></label>
-                    <input type="text" id="fullName" required class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-white focus:ring-2 focus:ring-teal-500 focus:outline-none transition" placeholder="আপনার সম্পূর্ণ নাম লিখুন">
-                </div>
-
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                        <label class="block text-sm font-medium text-slate-300 mb-1.5">মোবাইল নম্বর / WhatsApp <span class="text-red-400">*</span></label>
-                        <input type="tel" id="phone" required class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-white focus:ring-2 focus:ring-teal-500 focus:outline-none transition" placeholder="01XXXXXXXXX">
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium text-slate-300 mb-1.5">ইমেইল ঠিকানা (Email) <span class="text-red-400">*</span></label>
-                        <input type="email" id="email" required class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-white focus:ring-2 focus:ring-teal-500 focus:outline-none transition" placeholder="example@gmail.com">
-                    </div>
-                </div>
+    <!-- Main Content Container -->
+    <main class="flex-grow max-w-3xl w-full mx-auto px-4 py-10">
+        
+        <!-- Hero Section -->
+        <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-8 mb-8">
+            <div class="inline-flex items-center space-x-2 bg-slate-100 text-corporateNavy text-xs font-bold px-3 py-1 rounded-md uppercase tracking-wider mb-3">
+                Official Registration Portal
             </div>
+            <h1 class="text-2xl sm:text-3xl font-extrabold tracking-tight text-slate-900 leading-snug">
+                Grand Closing Assembly & Inauguration 2026
+            </h1>
+            <p class="mt-2 text-sm text-slate-600 leading-relaxed">
+                Secure your credential for the official District Board Closing Meeting, Upazila Board Inaugurations, IR Appointments, and Executive Networking Session.
+            </p>
+        </div>
 
-            <!-- Designation / Category Selection -->
-            <div class="space-y-4 pt-2">
-                <h3 class="text-base font-semibold text-teal-400 border-b border-slate-800 pb-2 flex items-center gap-2">
-                    <span>🎖️</span> ২. পদবি ও ক্যাটাগরি (Designation)
-                </h3>
+        <!-- Registration Form -->
+        <form id="vbdRegistrationForm" novalidate class="space-y-6">
 
-                <div>
-                    <label class="block text-sm font-medium text-slate-300 mb-1.5">আপনার মূল ক্যাটাগরি সিলেক্ট করুন <span class="text-red-400">*</span></label>
-                    <select id="category" required onchange="handleCategoryChange()" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-white focus:ring-2 focus:ring-teal-500 focus:outline-none transition">
-                        <option value="">-- ক্যাটাগরি বেছে নিন --</option>
-                        <option value="Upazila Level">উপজেলা বোর্ড / কমিটি / আইআর (Upazila Level)</option>
-                        <option value="District Board Member">ডিস্ট্রিক্ট বোর্ড মেম্বার (District Board Member)</option>
-                        <option value="Division Board Member">ডিভিশন বোর্ড মেম্বার (Division Board Member)</option>
-                        <option value="National Board Member">ন্যাশনাল বোর্ড মেম্বার (National Board Member)</option>
-                        <option value="YTP Member">ওয়াইটিপি মেম্বার (YDP/YTP Member)</option>
-                        <option value="Alumni">অ্যালুমনাই (Alumni)</option>
-                        <option value="General Member / Guest">সাধারণ ভলান্টিয়ার / গেস্ট (General / Guest)</option>
-                    </select>
+            <!-- SECTION 1: PERSONAL & CONTACT INFORMATION -->
+            <section class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 sm:p-8">
+                <div class="flex items-center gap-3 mb-6 pb-3 border-b border-slate-100">
+                    <div class="w-7 h-7 rounded bg-corporateNavy text-white flex items-center justify-center font-bold text-xs">1</div>
+                    <h2 class="text-base font-bold text-slate-900">Personal & Contact Information</h2>
                 </div>
 
-                <!-- Dynamic Upazila Section -->
-                <div id="upazilaSection" class="hidden space-y-4 bg-slate-950/60 p-4 md:p-5 rounded-2xl border border-slate-800 animate-fade-in">
+                <div class="space-y-5">
+                    <!-- Full Name -->
                     <div>
-                        <label class="block text-sm font-medium text-slate-300 mb-1.5">উপজেলা নির্বাচন করুন <span class="text-red-400">*</span></label>
-                        <select id="upazilaName" class="w-full bg-slate-900 border border-slate-800 rounded-xl px-4 py-3 text-white focus:ring-2 focus:ring-teal-500 focus:outline-none transition">
-                            <option value="">-- উপজেলা বেছে নিন --</option>
-                            <option value="DSCC">ঢাকা সাউথ সিটি কর্পোরেশন (DSCC)</option>
-                            <option value="Keraniganj">কেরানীগঞ্জ (Keraniganj)</option>
-                            <option value="Nawabganj">নবাবগঞ্জ (Nawabganj)</option>
-                            <option value="Dohar">দোহার (Dohar)</option>
-                        </select>
+                        <label for="fullName" class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">
+                            Full Name <span class="text-red-500">*</span>
+                        </label>
+                        <input type="text" id="fullName" name="fullName" required placeholder="Enter your full legal name"
+                            class="w-full px-4 py-3 rounded-xl border border-slate-300 focus:border-corporateNavy focus:ring-1 focus:ring-corporateNavy outline-none transition text-sm bg-white">
                     </div>
 
-                    <div>
-                        <label class="block text-sm font-medium text-slate-300 mb-1.5">আপনার সুনির্দিষ্ট ভূমিকা (Role) কী? <span class="text-red-400">*</span></label>
-                        <select id="upazilaRole" onchange="handleRoleChange()" class="w-full bg-slate-900 border border-slate-800 rounded-xl px-4 py-3 text-white focus:ring-2 focus:ring-teal-500 focus:outline-none transition">
-                            <option value="">-- ভূমিকা বেছে নিন --</option>
-                            <option value="Upazila Board Member">উপজেলা বোর্ড মেম্বার (Upazila Board Member)</option>
-                            <option value="Committee Member">কমিটি মেম্বার (Committee Member)</option>
-                            <option value="Institute Representative">ইনস্টিটিউট রিপ্রেজেন্টেটিভ (IR)</option>
-                            <option value="General Volunteer">জেনারেল ভলান্টিয়ার (General Volunteer)</option>
-                        </select>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                        <!-- Phone Number -->
+                        <div>
+                            <label for="phone" class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">
+                                Phone Number (WhatsApp) <span class="text-red-500">*</span>
+                            </label>
+                            <input type="tel" id="phone" name="phone" required placeholder="01XXXXXXXXX"
+                                class="w-full px-4 py-3 rounded-xl border border-slate-300 focus:border-corporateNavy focus:ring-1 focus:ring-corporateNavy outline-none transition text-sm bg-white">
+                        </div>
+
+                        <!-- Email Address -->
+                        <div>
+                            <label for="email" class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">
+                                Email Address <span class="text-red-500">*</span>
+                            </label>
+                            <input type="email" id="email" name="email" required placeholder="name@example.com"
+                                class="w-full px-4 py-3 rounded-xl border border-slate-300 focus:border-corporateNavy focus:ring-1 focus:ring-corporateNavy outline-none transition text-sm bg-white">
+                        </div>
                     </div>
 
-                    <!-- If IR Selected -->
-                    <div id="institutionField" class="hidden">
-                        <label class="block text-sm font-medium text-slate-300 mb-1.5">শিক্ষাপ্রতিষ্ঠানের নাম (Institution Name) <span class="text-red-400">*</span></label>
-                        <input type="text" id="institutionName" class="w-full bg-slate-900 border border-slate-800 rounded-xl px-4 py-3 text-white focus:ring-2 focus:ring-teal-500 focus:outline-none transition" placeholder="আপনার স্কুল/কলেজ/বিশ্ববিদ্যালয়ের নাম">
-                    </div>
-                </div>
-
-                <!-- Dynamic District Section -->
-                <div id="districtSection" class="hidden space-y-4 bg-slate-950/60 p-4 md:p-5 rounded-2xl border border-slate-800 animate-fade-in">
+                    <!-- T-Shirt Size -->
                     <div>
-                        <label class="block text-sm font-medium text-slate-300 mb-1.5">কোন ডিস্ট্রিক্ট বোর্ড? <span class="text-red-400">*</span></label>
-                        <input type="text" id="specificDistrict" class="w-full bg-slate-900 border border-slate-800 rounded-xl px-4 py-3 text-white focus:ring-2 focus:ring-teal-500 focus:outline-none transition" placeholder="যেমন: Dhaka District South, Barishal, etc.">
-                    </div>
-                </div>
-
-                <!-- Dynamic Division Section -->
-                <div id="divisionSection" class="hidden space-y-4 bg-slate-950/60 p-4 md:p-5 rounded-2xl border border-slate-800 animate-fade-in">
-                    <div>
-                        <label class="block text-sm font-medium text-slate-300 mb-1.5">ডিভিশন নির্বাচন করুন <span class="text-red-400">*</span></label>
-                        <select id="divisionName" class="w-full bg-slate-900 border border-slate-800 rounded-xl px-4 py-3 text-white focus:ring-2 focus:ring-teal-500 focus:outline-none transition">
-                            <option value="Dhaka Division" selected>ঢাকা ডিভিশন (Dhaka Division)</option>
-                            <option value="Other Division">অন্যান্য ডিভিশন</option>
+                        <label for="tshirtSize" class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">
+                            Event Kit / T-Shirt Size <span class="text-red-500">*</span>
+                        </label>
+                        <select id="tshirtSize" name="tshirtSize" required
+                            class="w-full px-4 py-3 rounded-xl border border-slate-300 focus:border-corporateNavy focus:ring-1 focus:ring-corporateNavy outline-none transition text-sm bg-white">
+                            <option value="" disabled selected>Select size</option>
+                            <option value="S">Small (S)</option>
+                            <option value="M">Medium (M)</option>
+                            <option value="L">Large (L)</option>
+                            <option value="XL">Extra Large (XL)</option>
+                            <option value="XXL">Double XL (XXL)</option>
                         </select>
                     </div>
                 </div>
+            </section>
 
-            </div>
+            <!-- SECTION 2: DESIGNATION & ORGANIZATIONAL AFFILIATION -->
+            <section class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 sm:p-8">
+                <div class="flex items-center gap-3 mb-6 pb-3 border-b border-slate-100">
+                    <div class="w-7 h-7 rounded bg-corporateNavy text-white flex items-center justify-center font-bold text-xs">2</div>
+                    <h2 class="text-base font-bold text-slate-900">Designation & Organizational Affiliation</h2>
+                </div>
 
-            <!-- Submit Button -->
-            <div class="pt-4">
-                <button type="submit" id="submitBtn" class="w-full bg-gradient-to-r from-teal-500 to-indigo-600 hover:from-teal-600 hover:to-indigo-700 text-white font-bold py-4 px-6 rounded-2xl shadow-xl shadow-teal-900/20 transition duration-200 transform active:scale-95 cursor-pointer flex items-center justify-center gap-2">
-                    <span>রেজিস্ট্রেশন কনফার্ম করুন</span>
-                    <span>🚀</span>
+                <!-- Primary Category Selection -->
+                <div class="space-y-3">
+                    <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-3">
+                        Select Primary Category <span class="text-red-500">*</span>
+                    </label>
+
+                    <div class="grid grid-cols-1 gap-3" id="categoryGroup">
+                        <!-- Option 1: Upazila Level -->
+                        <label class="role-card cursor-pointer">
+                            <input type="radio" name="primaryCategory" value="Upazila Level" class="sr-only" required onchange="handleCategoryChange(this.value)">
+                            <div class="role-card-content border border-slate-200 rounded-xl p-4 flex items-center justify-between transition">
+                                <div>
+                                    <span class="block text-sm font-bold text-slate-900">Upazila Level (Dhaka District South)</span>
+                                    <span class="block text-xs text-slate-500">Upazila Board, Committee Member (CM), IR, or General Volunteer</span>
+                                </div>
+                                <div class="check-indicator w-5 h-5 rounded-full border border-slate-300 flex items-center justify-center text-xs shrink-0">
+                                    <i class="fa-solid fa-check text-[10px]"></i>
+                                </div>
+                            </div>
+                        </label>
+
+                        <!-- Option 2: District Board Member -->
+                        <label class="role-card cursor-pointer">
+                            <input type="radio" name="primaryCategory" value="District Board Member" class="sr-only" onchange="handleCategoryChange(this.value)">
+                            <div class="role-card-content border border-slate-200 rounded-xl p-4 flex items-center justify-between transition">
+                                <div>
+                                    <span class="block text-sm font-bold text-slate-900">District Board Member</span>
+                                    <span class="block text-xs text-slate-500">Dhaka District South Executive Board</span>
+                                </div>
+                                <div class="check-indicator w-5 h-5 rounded-full border border-slate-300 flex items-center justify-center text-xs shrink-0">
+                                    <i class="fa-solid fa-check text-[10px]"></i>
+                                </div>
+                            </div>
+                        </label>
+
+                        <!-- Option 3: Division Board Member -->
+                        <label class="role-card cursor-pointer">
+                            <input type="radio" name="primaryCategory" value="Division Board Member" class="sr-only" onchange="handleCategoryChange(this.value)">
+                            <div class="role-card-content border border-slate-200 rounded-xl p-4 flex items-center justify-between transition">
+                                <div>
+                                    <span class="block text-sm font-bold text-slate-900">Division Board Member</span>
+                                    <span class="block text-xs text-slate-500">Divisional Representative</span>
+                                </div>
+                                <div class="check-indicator w-5 h-5 rounded-full border border-slate-300 flex items-center justify-center text-xs shrink-0">
+                                    <i class="fa-solid fa-check text-[10px]"></i>
+                                </div>
+                            </div>
+                        </label>
+
+                        <!-- Option 4: National Board Member -->
+                        <label class="role-card cursor-pointer">
+                            <input type="radio" name="primaryCategory" value="National Board Member" class="sr-only" onchange="handleCategoryChange(this.value)">
+                            <div class="role-card-content border border-slate-200 rounded-xl p-4 flex items-center justify-between transition">
+                                <div>
+                                    <span class="block text-sm font-bold text-slate-900">National Board Member</span>
+                                    <span class="block text-xs text-slate-500">VBD National Executive Committee</span>
+                                </div>
+                                <div class="check-indicator w-5 h-5 rounded-full border border-slate-300 flex items-center justify-center text-xs shrink-0">
+                                    <i class="fa-solid fa-check text-[10px]"></i>
+                                </div>
+                            </div>
+                        </label>
+
+                        <!-- Option 5: YDP Team -->
+                        <label class="role-card cursor-pointer">
+                            <input type="radio" name="primaryCategory" value="YDP Team" class="sr-only" onchange="handleCategoryChange(this.value)">
+                            <div class="role-card-content border border-slate-200 rounded-xl p-4 flex items-center justify-between transition">
+                                <div>
+                                    <span class="block text-sm font-bold text-slate-900">YDP Team</span>
+                                    <span class="block text-xs text-slate-500">Youth Development Program Member</span>
+                                </div>
+                                <div class="check-indicator w-5 h-5 rounded-full border border-slate-300 flex items-center justify-center text-xs shrink-0">
+                                    <i class="fa-solid fa-check text-[10px]"></i>
+                                </div>
+                            </div>
+                        </label>
+
+                        <!-- Option 6: Alumni -->
+                        <label class="role-card cursor-pointer">
+                            <input type="radio" name="primaryCategory" value="Alumni" class="sr-only" onchange="handleCategoryChange(this.value)">
+                            <div class="role-card-content border border-slate-200 rounded-xl p-4 flex items-center justify-between transition">
+                                <div>
+                                    <span class="block text-sm font-bold text-slate-900">Alumni</span>
+                                    <span class="block text-xs text-slate-500">Former Board Member / Senior Volunteer</span>
+                                </div>
+                                <div class="check-indicator w-5 h-5 rounded-full border border-slate-300 flex items-center justify-center text-xs shrink-0">
+                                    <i class="fa-solid fa-check text-[10px]"></i>
+                                </div>
+                            </div>
+                        </label>
+
+                        <!-- Option 7: General Member / Guest -->
+                        <label class="role-card cursor-pointer">
+                            <input type="radio" name="primaryCategory" value="General Member / Guest" class="sr-only" onchange="handleCategoryChange(this.value)">
+                            <div class="role-card-content border border-slate-200 rounded-xl p-4 flex items-center justify-between transition">
+                                <div>
+                                    <span class="block text-sm font-bold text-slate-900">General Member / Guest</span>
+                                    <span class="block text-xs text-slate-500">Invited Guest / Special Attendee</span>
+                                </div>
+                                <div class="check-indicator w-5 h-5 rounded-full border border-slate-300 flex items-center justify-center text-xs shrink-0">
+                                    <i class="fa-solid fa-check text-[10px]"></i>
+                                </div>
+                            </div>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- DYNAMIC CONDITIONAL BRANCHES CONTAINER -->
+                <div id="conditionalContainer" class="mt-6">
+
+                    <!-- BRANCH 1: UPAZILA LEVEL -->
+                    <div id="branch-upazila" class="conditional-panel hidden-panel bg-slate-50 border border-slate-200 rounded-xl p-5 space-y-5">
+                        <div>
+                            <label for="upazilaName" class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">
+                                Select Upazila <span class="text-red-500">*</span>
+                            </label>
+                            <select id="upazilaName" name="upazilaName" onchange="handleUpazilaSelect(this.value)"
+                                class="w-full px-4 py-3 rounded-xl border border-slate-300 focus:border-corporateNavy focus:ring-1 focus:ring-corporateNavy outline-none transition text-sm bg-white">
+                                <option value="" disabled selected>Select Upazila unit</option>
+                                <option value="Dhaka South City Corporation (DSCC)">Dhaka South City Corporation (DSCC)</option>
+                                <option value="Keraniganj">Keraniganj</option>
+                                <option value="Nawabganj">Nawabganj</option>
+                                <option value="Dohar">Dohar</option>
+                            </select>
+                        </div>
+
+                        <!-- Sub-Role Selection -->
+                        <div id="sub-upazila-role" class="conditional-panel hidden-panel pt-4 border-t border-slate-200 space-y-4">
+                            <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">
+                                Role in Selected Upazila <span class="text-red-500">*</span>
+                            </label>
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                <label class="cursor-pointer flex items-center gap-3 p-3 bg-white border border-slate-200 rounded-xl hover:border-corporateNavy transition">
+                                    <input type="radio" name="upazilaRole" value="Upazila Board Member" onchange="handleUpazilaRoleSelect(this.value)" class="w-4 h-4 text-corporateNavy">
+                                    <div>
+                                        <span class="block text-xs font-bold text-slate-900">Upazila Board Member</span>
+                                        <span class="block text-[11px] text-slate-500">Executive Board</span>
+                                    </div>
+                                </label>
+                                <label class="cursor-pointer flex items-center gap-3 p-3 bg-white border border-slate-200 rounded-xl hover:border-corporateNavy transition">
+                                    <input type="radio" name="upazilaRole" value="Committee Member (CM)" onchange="handleUpazilaRoleSelect(this.value)" class="w-4 h-4 text-corporateNavy">
+                                    <div>
+                                        <span class="block text-xs font-bold text-slate-900">Committee Member (CM)</span>
+                                        <span class="block text-[11px] text-slate-500">Inauguration Member</span>
+                                    </div>
+                                </label>
+                                <label class="cursor-pointer flex items-center gap-3 p-3 bg-white border border-slate-200 rounded-xl hover:border-corporateNavy transition">
+                                    <input type="radio" name="upazilaRole" value="Institute Representative (IR)" onchange="handleUpazilaRoleSelect(this.value)" class="w-4 h-4 text-corporateNavy">
+                                    <div>
+                                        <span class="block text-xs font-bold text-slate-900">Institute Representative (IR)</span>
+                                        <span class="block text-[11px] text-slate-500">Appointed IR</span>
+                                    </div>
+                                </label>
+                                <label class="cursor-pointer flex items-center gap-3 p-3 bg-white border border-slate-200 rounded-xl hover:border-corporateNavy transition">
+                                    <input type="radio" name="upazilaRole" value="General Volunteer" onchange="handleUpazilaRoleSelect(this.value)" class="w-4 h-4 text-corporateNavy">
+                                    <div>
+                                        <span class="block text-xs font-bold text-slate-900">General Volunteer</span>
+                                        <span class="block text-[11px] text-slate-500">General Attendee</span>
+                                    </div>
+                                </label>
+                            </div>
+                        </div>
+
+                        <!-- If Upazila Board Member -->
+                        <div id="sub-upazila-board-pos" class="conditional-panel hidden-panel pt-4 border-t border-slate-200">
+                            <label for="upazilaBoardPosition" class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">
+                                Specific Board Position <span class="text-red-500">*</span>
+                            </label>
+                            <select id="upazilaBoardPosition" name="upazilaBoardPosition"
+                                class="w-full px-4 py-3 rounded-xl border border-slate-300 focus:border-corporateNavy focus:ring-1 focus:ring-corporateNavy outline-none transition text-sm bg-white">
+                                <option value="" disabled selected>Select board position</option>
+                                <option value="President">President</option>
+                                <option value="Vice President">Vice President</option>
+                                <option value="General Secretary">General Secretary</option>
+                                <option value="Treasurer">Treasurer</option>
+                                <option value="Public Relations Officer (PRO)">Public Relations Officer (PRO)</option>
+                            </select>
+                        </div>
+
+                        <!-- If IR Selected -->
+                        <div id="sub-upazila-ir-inst" class="conditional-panel hidden-panel pt-4 border-t border-slate-200">
+                            <label for="institutionName" class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">
+                                Institution Name <span class="text-red-500">*</span>
+                            </label>
+                            <input type="text" id="institutionName" name="institutionName" placeholder="Enter school, college, or university name"
+                                class="w-full px-4 py-3 rounded-xl border border-slate-300 focus:border-corporateNavy focus:ring-1 focus:ring-corporateNavy outline-none transition text-sm bg-white">
+                        </div>
+                    </div>
+
+                    <!-- BRANCH 2: DISTRICT BOARD MEMBER -->
+                    <div id="branch-district" class="conditional-panel hidden-panel bg-slate-50 border border-slate-200 rounded-xl p-5 space-y-4">
+                        <div>
+                            <label for="districtPosition" class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">
+                                District Executive Position <span class="text-red-500">*</span>
+                            </label>
+                            <input type="text" id="districtPosition" name="districtPosition" placeholder="e.g., President, Director of HR, etc."
+                                class="w-full px-4 py-3 rounded-xl border border-slate-300 focus:border-corporateNavy focus:ring-1 focus:ring-corporateNavy outline-none transition text-sm bg-white">
+                        </div>
+                    </div>
+
+                    <!-- BRANCH 3: DIVISION BOARD MEMBER -->
+                    <div id="branch-division" class="conditional-panel hidden-panel bg-slate-50 border border-slate-200 rounded-xl p-5 space-y-4">
+                        <div>
+                            <label for="divisionName" class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">
+                                Select Division <span class="text-red-500">*</span>
+                            </label>
+                            <select id="divisionName" name="divisionName"
+                                class="w-full px-4 py-3 rounded-xl border border-slate-300 focus:border-corporateNavy focus:ring-1 focus:ring-corporateNavy outline-none transition text-sm bg-white">
+                                <option value="" disabled selected>Select division</option>
+                                <option value="Dhaka Division">Dhaka Division</option>
+                                <option value="Chattogram Division">Chattogram Division</option>
+                                <option value="Rajshahi Division">Rajshahi Division</option>
+                                <option value="Khulna Division">Khulna Division</option>
+                                <option value="Barishal Division">Barishal Division</option>
+                                <option value="Sylhet Division">Sylhet Division</option>
+                                <option value="Rangpur Division">Rangpur Division</option>
+                                <option value="Mymensingh Division">Mymensingh Division</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- BRANCH 4: NATIONAL BOARD MEMBER -->
+                    <div id="branch-national" class="conditional-panel hidden-panel bg-slate-50 border border-slate-200 rounded-xl p-5 space-y-4">
+                        <div>
+                            <label for="nationalPosition" class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">
+                                National Board Designation <span class="text-red-500">*</span>
+                            </label>
+                            <input type="text" id="nationalPosition" name="nationalPosition" placeholder="Enter your national executive role"
+                                class="w-full px-4 py-3 rounded-xl border border-slate-300 focus:border-corporateNavy focus:ring-1 focus:ring-corporateNavy outline-none transition text-sm bg-white">
+                        </div>
+                    </div>
+
+                    <!-- BRANCH 5: YDP TEAM -->
+                    <div id="branch-ydp" class="conditional-panel hidden-panel bg-slate-50 border border-slate-200 rounded-xl p-5 space-y-4">
+                        <div>
+                            <label for="ydpTrack" class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">
+                                YDP Track / Role <span class="text-red-500">*</span>
+                            </label>
+                            <input type="text" id="ydpTrack" name="ydpTrack" placeholder="Enter your YDP track or assignment"
+                                class="w-full px-4 py-3 rounded-xl border border-slate-300 focus:border-corporateNavy focus:ring-1 focus:ring-corporateNavy outline-none transition text-sm bg-white">
+                        </div>
+                    </div>
+
+                    <!-- BRANCH 6: ALUMNI -->
+                    <div id="branch-alumni" class="conditional-panel hidden-panel bg-slate-50 border border-slate-200 rounded-xl p-5 space-y-4">
+                        <div>
+                            <label for="alumniBatch" class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">
+                                Former Board / Tenure Year <span class="text-red-500">*</span>
+                            </label>
+                            <input type="text" id="alumniBatch" name="alumniBatch" placeholder="e.g., VBD Dhaka District South Board 2024"
+                                class="w-full px-4 py-3 rounded-xl border border-slate-300 focus:border-corporateNavy focus:ring-1 focus:ring-corporateNavy outline-none transition text-sm bg-white">
+                        </div>
+                    </div>
+
+                    <!-- BRANCH 7: GENERAL MEMBER / GUEST -->
+                    <div id="branch-general" class="conditional-panel hidden-panel bg-slate-50 border border-slate-200 rounded-xl p-5 space-y-4">
+                        <div>
+                            <label for="guestAffiliation" class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">
+                                Organization / Reference (Optional)
+                            </label>
+                            <input type="text" id="guestAffiliation" name="guestAffiliation" placeholder="Enter your organization or reference name"
+                                class="w-full px-4 py-3 rounded-xl border border-slate-300 focus:border-corporateNavy focus:ring-1 focus:ring-corporateNavy outline-none transition text-sm bg-white">
+                        </div>
+                    </div>
+
+                </div>
+            </section>
+
+            <!-- SUBMIT BUTTON & FEEDBACK -->
+            <div class="pt-2">
+                <button type="submit" id="submitBtn"
+                    class="w-full bg-corporateNavy hover:bg-slate-800 text-white font-bold py-4 px-6 rounded-xl shadow-md transition duration-200 text-sm tracking-wide uppercase flex items-center justify-center space-x-2">
+                    <span>Confirm Registration</span>
+                    <i class="fa-solid fa-arrow-right text-xs"></i>
                 </button>
             </div>
 
-            <!-- Success Message Box -->
-            <div id="successMessage" class="hidden bg-emerald-950/80 border border-emerald-500/50 text-emerald-200 p-4 rounded-2xl text-center font-medium animate-fade-in">
-                🎉 অভিনন্দন! আপনার রেজিস্ট্রেশন সফলভাবে সম্পন্ন হয়েছে এবং গুগল শিটে রেকর্ড করা হয়েছে।
+            <!-- Success Notification Box -->
+            <div id="successMessage" class="hidden-panel bg-emerald-50 border border-emerald-200 text-emerald-900 p-5 rounded-xl text-center">
+                <div class="flex items-center justify-center space-x-2 mb-1">
+                    <i class="fa-solid fa-circle-check text-emerald-600 text-lg"></i>
+                    <span class="font-bold text-sm">Registration Successful</span>
+                </div>
+                <p class="text-xs text-emerald-700">Your credential data has been successfully recorded in the official database.</p>
             </div>
-        </form>
-    </div>
 
+        </form>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-white border-t border-slate-200 py-6 mt-12 text-center text-xs text-slate-500">
+        <p>&copy; 2026 Volunteer for Bangladesh (VBD) Dhaka District South. All Rights Reserved.</p>
+    </footer>
+
+    <!-- JavaScript Logic & Google Apps Script Integration -->
     <script>
+        // Connected Google Apps Script Web App URL
         const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzeb4ThSsTj0UdMWmMN_jCiv5IvyoPabXBvb-VNLrPLpyaayTXsKgvujcIjv5RXQyTktQ/exec";
 
-        function handleCategoryChange() {
-            const category = document.getElementById('category').value;
-            
-            document.getElementById('upazilaSection').classList.add('hidden');
-            document.getElementById('districtSection').classList.add('hidden');
-            document.getElementById('divisionSection').classList.add('hidden');
+        function hideAllBranches() {
+            const branches = ['branch-upazila', 'branch-district', 'branch-division', 'branch-national', 'branch-ydp', 'branch-alumni', 'branch-general'];
+            branches.forEach(id => {
+                const el = document.getElementById(id);
+                el.classList.remove('visible-panel');
+                el.classList.add('hidden-panel');
+            });
+        }
+
+        function handleCategoryChange(category) {
+            hideAllBranches();
 
             if (category === 'Upazila Level') {
-                document.getElementById('upazilaSection').classList.remove('hidden');
+                document.getElementById('branch-upazila').classList.remove('hidden-panel');
+                document.getElementById('branch-upazila').classList.add('visible-panel');
             } else if (category === 'District Board Member') {
-                document.getElementById('districtSection').classList.remove('hidden');
+                document.getElementById('branch-district').classList.remove('hidden-panel');
+                document.getElementById('branch-district').classList.add('visible-panel');
             } else if (category === 'Division Board Member') {
-                document.getElementById('divisionSection').classList.remove('hidden');
+                document.getElementById('branch-division').classList.remove('hidden-panel');
+                document.getElementById('branch-division').classList.add('visible-panel');
+            } else if (category === 'National Board Member') {
+                document.getElementById('branch-national').classList.remove('hidden-panel');
+                document.getElementById('branch-national').classList.add('visible-panel');
+            } else if (category === 'YDP Team') {
+                document.getElementById('branch-ydp').classList.remove('hidden-panel');
+                document.getElementById('branch-ydp').classList.add('visible-panel');
+            } else if (category === 'Alumni') {
+                document.getElementById('branch-alumni').classList.remove('hidden-panel');
+                document.getElementById('branch-alumni').classList.add('visible-panel');
+            } else if (category === 'General Member / Guest') {
+                document.getElementById('branch-general').classList.remove('hidden-panel');
+                document.getElementById('branch-general').classList.add('visible-panel');
             }
         }
 
-        function handleRoleChange() {
-            const role = document.getElementById('upazilaRole').value;
-            const instField = document.getElementById('institutionField');
-            if (role === 'Institute Representative') {
-                instField.classList.remove('hidden');
-            } else {
-                instField.classList.add('hidden');
+        function handleUpazilaSelect(upazila) {
+            const subRole = document.getElementById('sub-upazila-role');
+            if (upazila) {
+                subRole.classList.remove('hidden-panel');
+                subRole.classList.add('visible-panel');
+            }
+        }
+
+        function handleUpazilaRoleSelect(role) {
+            const boardPos = document.getElementById('sub-upazila-board-pos');
+            const irInst = document.getElementById('sub-upazila-ir-inst');
+
+            boardPos.classList.remove('visible-panel');
+            boardPos.classList.add('hidden-panel');
+            irInst.classList.remove('visible-panel');
+            irInst.classList.add('hidden-panel');
+
+            if (role === 'Upazila Board Member') {
+                boardPos.classList.remove('hidden-panel');
+                boardPos.classList.add('visible-panel');
+            } else if (role === 'Institute Representative (IR)') {
+                irInst.classList.remove('hidden-panel');
+                irInst.classList.add('visible-panel');
             }
         }
 
         document.getElementById('vbdRegistrationForm').addEventListener('submit', function(e) {
             e.preventDefault();
-            
+
+            // Validate primary category
+            const selectedCategory = document.querySelector('input[name="primaryCategory"]:checked');
+            if (!selectedCategory) {
+                alert('Please select a primary category.');
+                return;
+            }
+
             const btn = document.getElementById('submitBtn');
             btn.disabled = true;
-            btn.innerHTML = "<span>সাবমিট হচ্ছে, দয়া করে অপেক্ষা করুন...</span>";
+            btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin mr-2"></i> Processing Registration...`;
 
+            // Gather Form Data
             const formData = {
                 fullName: document.getElementById('fullName').value,
                 phone: document.getElementById('phone').value,
                 email: document.getElementById('email').value,
-                category: document.getElementById('category').value,
-                subCategory: document.getElementById('specificDistrict').value || document.getElementById('divisionName').value || "",
+                tshirtSize: document.getElementById('tshirtSize').value,
+                category: selectedCategory.value,
+                subCategory: 
+                    document.getElementById('upazilaName').value || 
+                    document.getElementById('districtPosition').value || 
+                    document.getElementById('divisionName').value || 
+                    document.getElementById('nationalPosition').value || 
+                    document.getElementById('ydpTrack').value || 
+                    document.getElementById('alumniBatch').value || 
+                    document.getElementById('guestAffiliation').value || "",
                 upazila: document.getElementById('upazilaName').value || "",
-                role: document.getElementById('upazilaRole').value || document.getElementById('category').value,
+                role: 
+                    document.querySelector('input[name="upazilaRole"]:checked')?.value || 
+                    document.getElementById('upazilaBoardPosition').value || 
+                    selectedCategory.value,
                 institution: document.getElementById('institutionName').value || ""
             };
 
@@ -207,18 +568,30 @@
             })
             .then(() => {
                 document.getElementById('vbdRegistrationForm').reset();
-                document.getElementById('successMessage').classList.remove('hidden');
+                hideAllBranches();
+                document.getElementById('sub-upazila-role').classList.add('hidden-panel');
+                document.getElementById('sub-upazila-board-pos').classList.add('hidden-panel');
+                document.getElementById('sub-upazila-ir-inst').classList.add('hidden-panel');
+
+                const successBox = document.getElementById('successMessage');
+                successBox.classList.remove('hidden-panel');
+                successBox.classList.add('visible-panel');
+
                 btn.disabled = false;
-                btn.innerHTML = "<span>রেজিস্ট্রেশন কনফার্ম করুন</span> <span>🚀</span>";
+                btn.innerHTML = `<span>Confirm Registration</span> <i class="fa-solid fa-arrow-right text-xs"></i>`;
+
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+
                 setTimeout(() => {
-                    document.getElementById('successMessage').classList.add('hidden');
-                }, 6000);
+                    successBox.classList.remove('visible-panel');
+                    successBox.classList.add('hidden-panel');
+                }, 7000);
             })
             .catch(error => {
-                console.error('Error!', error);
-                alert('দুঃখিত, কোনো সমস্যা হয়েছে। আবার চেষ্টা করুন।');
+                console.error('Submission Error:', error);
+                alert('An error occurred during submission. Please try again.');
                 btn.disabled = false;
-                btn.innerHTML = "<span>রেজিস্ট্রেশন কনফার্ম করুন</span> <span>🚀</span>";
+                btn.innerHTML = `<span>Confirm Registration</span> <i class="fa-solid fa-arrow-right text-xs"></i>`;
             });
         });
     </script>
