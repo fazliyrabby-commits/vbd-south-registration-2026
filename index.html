@@ -1,40 +1,897 @@
-function doPost(e) {
-  var sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
-  var data = JSON.parse(e.postData.contents);
-  
-  var screenshotUrl = "No file";
-  if (data.screenshotData && data.screenshotData.indexOf("base64,") > -1) {
-    try {
-      var folderName = "VBD_Registration_Screenshots_2026";
-      var folders = DriveApp.getFoldersByName(folderName);
-      var folder = folders.hasNext() ? folders.next() : DriveApp.createFolder(folderName);
-      
-      var splitData = data.screenshotData.split("base64,");
-      var contentType = splitData[0].split(":")[1].split(";")[0];
-      var bytes = Utilities.base64Decode(splitData[1]);
-      var blob = Utilities.newBlob(bytes, contentType, (data.fullName || "Delegate") + "_" + (data.screenshotName || "payment.png"));
-      var file = folder.createFile(blob);
-      file.setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.VIEW);
-      screenshotUrl = file.getUrl();
-    } catch (err) {
-      screenshotUrl = "Upload Error: " + err.message;
-    }
-  }
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VBD Dhaka District South | Official Event Registration Portal</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts: Inter & Plus Jakarta Sans -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@600;700;800&display=swap" rel="stylesheet">
+    <!-- Font Awesome for Clean Corporate Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        display: ['Plus Jakarta Sans', 'sans-serif'],
+                    },
+                    colors: {
+                        vbdDeep: '#041E17',
+                        vbdForest: '#0A362A',
+                        vbdEmerald: '#115E48',
+                        accentGold: '#D4AF37',
+                        goldLight: '#F3E5AB',
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        .ambient-bg {
+            background-color: #F4F7F6;
+            background-image: 
+                radial-gradient(at 15% 15%, rgba(10, 54, 42, 0.06) 0px, transparent 50%),
+                radial-gradient(at 85% 25%, rgba(212, 175, 55, 0.07) 0px, transparent 50%),
+                radial-gradient(at 50% 85%, rgba(17, 94, 72, 0.05) 0px, transparent 50%);
+            background-size: 200% 200%;
+            animation: ambientShift 18s ease infinite;
+        }
+        @keyframes ambientShift {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
 
-  sheet.appendRow([
-    new Date(),
-    data.fullName,
-    data.phone,
-    data.email,
-    data.category,
-    data.subCategory || "",
-    data.upazila || "",
-    data.role || "",
-    data.institution || "",
-    data.feeTier || "",
-    screenshotUrl
-  ]);
-  
-  return ContentService.createTextOutput(JSON.stringify({"result": "success"}))
-         .setMimeType(ContentService.MimeType.JSON);
-}
+        #introOverlay {
+            position: fixed;
+            inset: 0;
+            z-index: 100;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            transition: opacity 0.6s ease, visibility 0.6s ease;
+        }
+        .curtain-panel {
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            width: 50.5%;
+            background: linear-gradient(145deg, #041E17 0%, #0A362A 100%);
+            z-index: 10;
+            transition: transform 1.15s cubic-bezier(0.77, 0, 0.175, 1);
+            box-shadow: 0 0 50px rgba(0,0,0,0.6);
+        }
+        #curtainLeft {
+            left: 0;
+            border-right: 1px solid rgba(212, 175, 55, 0.35);
+        }
+        #curtainRight {
+            right: 0;
+            border-left: 1px solid rgba(212, 175, 55, 0.35);
+        }
+        .curtains-open #curtainLeft {
+            transform: translateX(-100%);
+        }
+        .curtains-open #curtainRight {
+            transform: translateX(100%);
+        }
+
+        #revealStage {
+            position: relative;
+            z-index: 5;
+            opacity: 0;
+            transform: scale(0.94) translateY(12px);
+            transition: all 0.9s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .stage-visible #revealStage {
+            opacity: 1;
+            transform: scale(1) translateY(0);
+        }
+
+        .sparkle {
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            border-radius: 50%;
+            background: #D4AF37;
+            box-shadow: 0 0 8px #D4AF37, 0 0 14px #F3E5AB;
+            opacity: 0;
+            pointer-events: none;
+            animation: floatSparkle 3.5s ease-in-out infinite;
+        }
+        @keyframes floatSparkle {
+            0% { transform: translateY(20px) scale(0.4); opacity: 0; }
+            40% { opacity: 0.9; }
+            80% { opacity: 0.5; }
+            100% { transform: translateY(-70px) scale(1.1); opacity: 0; }
+        }
+
+        .conditional-panel {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            overflow: hidden;
+        }
+        .hidden-panel {
+            display: none;
+            opacity: 0;
+        }
+        .visible-panel {
+            display: block;
+            opacity: 1;
+            animation: fadeInSlide 0.28s ease-out forwards;
+        }
+        @keyframes fadeInSlide {
+            from { opacity: 0; transform: translateY(-6px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .role-card input:checked + .role-card-content {
+            border-color: #0A362A;
+            background-color: #F0F7F4;
+            box-shadow: 0 4px 14px rgba(10, 54, 42, 0.08);
+        }
+        .role-card input:checked + .role-card-content .check-indicator {
+            background-color: #0A362A;
+            border-color: #0A362A;
+            color: #FFFFFF;
+        }
+    </style>
+</head>
+<body class="ambient-bg text-slate-900 antialiased min-h-screen flex flex-col selection:bg-vbdForest selection:text-white">
+
+    <!-- CURTAIN REVEAL & WELCOME STAGE -->
+    <div id="introOverlay" class="bg-vbdDeep">
+        <div id="curtainLeft" class="curtain-panel flex items-center justify-end pr-4">
+            <div class="w-1 h-24 bg-gradient-to-b from-transparent via-accentGold/50 to-transparent rounded-full"></div>
+        </div>
+        <div id="curtainRight" class="curtain-panel flex items-center justify-start pl-4">
+            <div class="w-1 h-24 bg-gradient-to-b from-transparent via-accentGold/50 to-transparent rounded-full"></div>
+        </div>
+
+        <div id="sparkleContainer" class="absolute inset-0 z-0 overflow-hidden pointer-events-none"></div>
+
+        <div id="revealStage" class="max-w-lg w-full mx-4 text-center px-6 py-10 sm:p-12 rounded-3xl bg-vbdForest/60 backdrop-blur-xl border border-emerald-800/60 shadow-2xl">
+            <div class="inline-flex items-center justify-center mb-6">
+                <img src="https://raw.githubusercontent.com/fazliyrabby-commits/white-vbd-logo/main/vbd%20white%20logo.png" 
+                     alt="Volunteer for Bangladesh Logo" 
+                     class="h-14 sm:h-16 w-auto object-contain drop-shadow-md">
+            </div>
+
+            <div class="inline-block px-3.5 py-1 rounded-full bg-emerald-950/80 border border-accentGold/40 text-accentGold text-[11px] font-bold uppercase tracking-[0.2em] mb-4">
+                Dhaka District South
+            </div>
+
+            <h1 class="font-display text-2xl sm:text-3xl font-extrabold text-white tracking-tight leading-snug mb-3">
+                Grand Closing Assembly &amp; Inauguration 2026
+            </h1>
+
+            <p class="text-xs sm:text-sm text-emerald-100/80 leading-relaxed max-w-md mx-auto mb-8">
+                Official Delegate Credentialing, Upazila Board Inauguration, and Executive Networking Summit.
+            </p>
+
+            <button type="button" onclick="enterRegistrationPortal()" 
+                class="w-full sm:w-auto inline-flex items-center justify-center gap-3 bg-gradient-to-r from-accentGold to-amber-500 hover:from-amber-400 hover:to-accentGold text-vbdDeep font-extrabold text-xs sm:text-sm uppercase tracking-wider px-8 py-4 rounded-xl shadow-lg shadow-black/30 transition-all duration-200 transform hover:-translate-y-0.5 active:scale-95 cursor-pointer">
+                <span>Proceed to Registration</span>
+                <i class="fa-solid fa-arrow-right text-xs"></i>
+            </button>
+        </div>
+    </div>
+
+    <!-- TOP EXECUTIVE HEADER BAR -->
+    <header class="bg-vbdDeep text-white border-b border-emerald-900/70 sticky top-0 z-40 shadow-md">
+        <div class="max-w-4xl mx-auto px-4 sm:px-6 py-3.5 flex items-center justify-between gap-3">
+            <div class="flex items-center space-x-3">
+                <img src="https://raw.githubusercontent.com/fazliyrabby-commits/white-vbd-logo/main/vbd%20white%20logo.png" 
+                     alt="VBD Logo" 
+                     class="h-9 sm:h-10 w-auto object-contain shrink-0">
+                <div class="border-l border-emerald-800/80 pl-3">
+                    <span class="block text-[10px] sm:text-xs font-semibold tracking-wider uppercase text-emerald-300/90">Volunteer for Bangladesh</span>
+                    <span class="block text-xs sm:text-sm font-bold text-white tracking-tight">Dhaka District South</span>
+                </div>
+            </div>
+            <div class="text-[11px] sm:text-xs font-semibold text-emerald-100 bg-vbdForest/90 px-3 py-1.5 rounded-lg border border-emerald-700/60 shrink-0">
+                <i class="fa-regular fa-calendar-days mr-1.5 text-accentGold"></i>Dec 12, 2026
+            </div>
+        </div>
+    </header>
+
+    <!-- MAIN CONTENT CONTAINER -->
+    <main class="flex-grow max-w-3xl w-full mx-auto px-4 py-7 sm:py-10">
+        
+        <div class="bg-white rounded-2xl shadow-sm border border-slate-200/90 p-6 sm:p-8 mb-6 sm:mb-8 relative overflow-hidden">
+            <div class="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-vbdDeep via-vbdEmerald to-accentGold"></div>
+            <div class="inline-flex items-center space-x-2 bg-emerald-50 text-vbdForest border border-emerald-200/70 text-[11px] font-bold px-3 py-1 rounded-md uppercase tracking-wider mb-3">
+                Official Registration Portal
+            </div>
+            <h2 class="font-display text-xl sm:text-3xl font-extrabold tracking-tight text-slate-900 leading-snug">
+                Grand Closing Assembly &amp; Inauguration 2026
+            </h2>
+            <p class="mt-2 text-xs sm:text-sm text-slate-600 leading-relaxed">
+                Complete your official registration below to confirm your seat, delegate credentials, and event access for the upcoming Dhaka District South assembly.
+            </p>
+        </div>
+
+        <form id="vbdRegistrationForm" novalidate class="space-y-6">
+
+            <!-- SECTION 1 -->
+            <section class="bg-white rounded-2xl shadow-sm border border-slate-200/90 p-5 sm:p-8">
+                <div class="flex items-center gap-3 mb-6 pb-3.5 border-b border-slate-100">
+                    <div class="w-7 h-7 rounded-lg bg-vbdForest text-white flex items-center justify-center font-bold text-xs shrink-0">1</div>
+                    <h3 class="text-sm sm:text-base font-bold text-slate-900">Personal &amp; Contact Information</h3>
+                </div>
+
+                <div class="space-y-5">
+                    <div>
+                        <label for="fullName" class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">
+                            Full Name <span class="text-red-500">*</span>
+                        </label>
+                        <input type="text" id="fullName" name="fullName" required placeholder="Enter your full legal name"
+                            class="w-full px-4 py-3 rounded-xl border border-slate-300 focus:border-vbdForest focus:ring-2 focus:ring-vbdForest/15 outline-none transition text-sm bg-white">
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-5">
+                        <div>
+                            <label for="phone" class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">
+                                Phone Number (WhatsApp) <span class="text-red-500">*</span>
+                            </label>
+                            <input type="tel" id="phone" name="phone" required placeholder="01XXXXXXXXX"
+                                class="w-full px-4 py-3 rounded-xl border border-slate-300 focus:border-vbdForest focus:ring-2 focus:ring-vbdForest/15 outline-none transition text-sm bg-white">
+                        </div>
+
+                        <div>
+                            <label for="email" class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">
+                                Email Address <span class="text-red-500">*</span>
+                            </label>
+                            <input type="email" id="email" name="email" required placeholder="name@example.com"
+                                class="w-full px-4 py-3 rounded-xl border border-slate-300 focus:border-vbdForest focus:ring-2 focus:ring-vbdForest/15 outline-none transition text-sm bg-white">
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- SECTION 2 -->
+            <section class="bg-white rounded-2xl shadow-sm border border-slate-200/90 p-5 sm:p-8">
+                <div class="flex items-center gap-3 mb-6 pb-3.5 border-b border-slate-100">
+                    <div class="w-7 h-7 rounded-lg bg-vbdForest text-white flex items-center justify-center font-bold text-xs shrink-0">2</div>
+                    <h3 class="text-sm sm:text-base font-bold text-slate-900">Designation &amp; Organizational Affiliation</h3>
+                </div>
+
+                <div class="space-y-3">
+                    <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-3">
+                        Select Primary Category <span class="text-red-500">*</span>
+                    </label>
+
+                    <div class="grid grid-cols-1 gap-3" id="categoryGroup">
+                        <label class="role-card cursor-pointer">
+                            <input type="radio" name="primaryCategory" value="Upazila Level" class="sr-only" required onchange="handleCategoryChange(this.value)">
+                            <div class="role-card-content border border-slate-200 rounded-xl p-4 flex items-center justify-between gap-3 transition hover:border-slate-300">
+                                <div>
+                                    <span class="block text-sm font-bold text-slate-900">Upazila Level</span>
+                                    <span class="block text-xs text-slate-500 mt-0.5">Upazila Board, Committee Member (CM), IR, or General Volunteer</span>
+                                </div>
+                                <div class="check-indicator w-5 h-5 rounded-full border border-slate-300 flex items-center justify-center text-xs shrink-0">
+                                    <i class="fa-solid fa-check text-[10px]"></i>
+                                </div>
+                            </div>
+                        </label>
+
+                        <label class="role-card cursor-pointer">
+                            <input type="radio" name="primaryCategory" value="District Board Member" class="sr-only" onchange="handleCategoryChange(this.value)">
+                            <div class="role-card-content border border-slate-200 rounded-xl p-4 flex items-center justify-between gap-3 transition hover:border-slate-300">
+                                <div>
+                                    <span class="block text-sm font-bold text-slate-900">District Board Member</span>
+                                    <span class="block text-xs text-slate-500 mt-0.5">Executive Board Representative</span>
+                                </div>
+                                <div class="check-indicator w-5 h-5 rounded-full border border-slate-300 flex items-center justify-center text-xs shrink-0">
+                                    <i class="fa-solid fa-check text-[10px]"></i>
+                                </div>
+                            </div>
+                        </label>
+
+                        <label class="role-card cursor-pointer">
+                            <input type="radio" name="primaryCategory" value="Division Board Member" class="sr-only" onchange="handleCategoryChange(this.value)">
+                            <div class="role-card-content border border-slate-200 rounded-xl p-4 flex items-center justify-between gap-3 transition hover:border-slate-300">
+                                <div>
+                                    <span class="block text-sm font-bold text-slate-900">Division Board Member</span>
+                                    <span class="block text-xs text-slate-500 mt-0.5">Divisional Executive Representative</span>
+                                </div>
+                                <div class="check-indicator w-5 h-5 rounded-full border border-slate-300 flex items-center justify-center text-xs shrink-0">
+                                    <i class="fa-solid fa-check text-[10px]"></i>
+                                </div>
+                            </div>
+                        </label>
+
+                        <label class="role-card cursor-pointer">
+                            <input type="radio" name="primaryCategory" value="National Board Member" class="sr-only" onchange="handleCategoryChange(this.value)">
+                            <div class="role-card-content border border-slate-200 rounded-xl p-4 flex items-center justify-between gap-3 transition hover:border-slate-300">
+                                <div>
+                                    <span class="block text-sm font-bold text-slate-900">National Board Member</span>
+                                    <span class="block text-xs text-slate-500 mt-0.5">VBD National Executive Committee</span>
+                                </div>
+                                <div class="check-indicator w-5 h-5 rounded-full border border-slate-300 flex items-center justify-center text-xs shrink-0">
+                                    <i class="fa-solid fa-check text-[10px]"></i>
+                                </div>
+                            </div>
+                        </label>
+
+                        <label class="role-card cursor-pointer">
+                            <input type="radio" name="primaryCategory" value="YDP Team" class="sr-only" onchange="handleCategoryChange(this.value)">
+                            <div class="role-card-content border border-slate-200 rounded-xl p-4 flex items-center justify-between gap-3 transition hover:border-slate-300">
+                                <div>
+                                    <span class="block text-sm font-bold text-slate-900">YDP Team</span>
+                                    <span class="block text-xs text-slate-500 mt-0.5">Youth Development Program Member</span>
+                                </div>
+                                <div class="check-indicator w-5 h-5 rounded-full border border-slate-300 flex items-center justify-center text-xs shrink-0">
+                                    <i class="fa-solid fa-check text-[10px]"></i>
+                                </div>
+                            </div>
+                        </label>
+
+                        <label class="role-card cursor-pointer">
+                            <input type="radio" name="primaryCategory" value="Alumni" class="sr-only" onchange="handleCategoryChange(this.value)">
+                            <div class="role-card-content border border-slate-200 rounded-xl p-4 flex items-center justify-between gap-3 transition hover:border-slate-300">
+                                <div>
+                                    <span class="block text-sm font-bold text-slate-900">Alumni</span>
+                                    <span class="block text-xs text-slate-500 mt-0.5">Former Board Member / Senior Volunteer</span>
+                                </div>
+                                <div class="check-indicator w-5 h-5 rounded-full border border-slate-300 flex items-center justify-center text-xs shrink-0">
+                                    <i class="fa-solid fa-check text-[10px]"></i>
+                                </div>
+                            </div>
+                        </label>
+
+                        <label class="role-card cursor-pointer">
+                            <input type="radio" name="primaryCategory" value="General Member / Guest" class="sr-only" onchange="handleCategoryChange(this.value)">
+                            <div class="role-card-content border border-slate-200 rounded-xl p-4 flex items-center justify-between gap-3 transition hover:border-slate-300">
+                                <div>
+                                    <span class="block text-sm font-bold text-slate-900">General Member / Guest</span>
+                                    <span class="block text-xs text-slate-500 mt-0.5">Invited Guest / Special Attendee</span>
+                                </div>
+                                <div class="check-indicator w-5 h-5 rounded-full border border-slate-300 flex items-center justify-center text-xs shrink-0">
+                                    <i class="fa-solid fa-check text-[10px]"></i>
+                                </div>
+                            </div>
+                        </label>
+                    </div>
+                </div>
+
+                <div id="conditionalContainer" class="mt-6">
+                    <div id="branch-upazila" class="conditional-panel hidden-panel bg-slate-50 border border-slate-200 rounded-xl p-4 sm:p-5 space-y-5">
+                        <div>
+                            <label for="upazilaName" class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">
+                                Select Upazila <span class="text-red-500">*</span>
+                            </label>
+                            <select id="upazilaName" name="upazilaName" onchange="handleUpazilaSelect(this.value)"
+                                class="w-full px-4 py-3 rounded-xl border border-slate-300 focus:border-vbdForest focus:ring-2 focus:ring-vbdForest/15 outline-none transition text-sm bg-white">
+                                <option value="" disabled selected>Select Upazila unit</option>
+                                <option value="Dhaka South City Corporation (DSCC)">Dhaka South City Corporation (DSCC)</option>
+                                <option value="Keraniganj">Keraniganj</option>
+                                <option value="Nawabganj">Nawabganj</option>
+                                <option value="Dohar">Dohar</option>
+                            </select>
+                        </div>
+
+                        <div id="sub-upazila-role" class="conditional-panel hidden-panel pt-4 border-t border-slate-200 space-y-4">
+                            <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">
+                                Role in Selected Upazila <span class="text-red-500">*</span>
+                            </label>
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                <label class="cursor-pointer flex items-center gap-3 p-3 bg-white border border-slate-200 rounded-xl hover:border-vbdForest transition">
+                                    <input type="radio" name="upazilaRole" value="Upazila Board Member" onchange="handleUpazilaRoleSelect(this.value)" class="w-4 h-4 accent-vbdForest">
+                                    <div>
+                                        <span class="block text-xs font-bold text-slate-900">Upazila Board Member</span>
+                                        <span class="block text-[11px] text-slate-500">Executive Board</span>
+                                    </div>
+                                </label>
+                                <label class="cursor-pointer flex items-center gap-3 p-3 bg-white border border-slate-200 rounded-xl hover:border-vbdForest transition">
+                                    <input type="radio" name="upazilaRole" value="Committee Member (CM)" onchange="handleUpazilaRoleSelect(this.value)" class="w-4 h-4 accent-vbdForest">
+                                    <div>
+                                        <span class="block text-xs font-bold text-slate-900">Committee Member (CM)</span>
+                                        <span class="block text-[11px] text-slate-500">Inauguration Member</span>
+                                    </div>
+                                </label>
+                                <label class="cursor-pointer flex items-center gap-3 p-3 bg-white border border-slate-200 rounded-xl hover:border-vbdForest transition">
+                                    <input type="radio" name="upazilaRole" value="Institute Representative (IR)" onchange="handleUpazilaRoleSelect(this.value)" class="w-4 h-4 accent-vbdForest">
+                                    <div>
+                                        <span class="block text-xs font-bold text-slate-900">Institute Representative (IR)</span>
+                                        <span class="block text-[11px] text-slate-500">Appointed IR</span>
+                                    </div>
+                                </label>
+                                <label class="cursor-pointer flex items-center gap-3 p-3 bg-white border border-slate-200 rounded-xl hover:border-vbdForest transition">
+                                    <input type="radio" name="upazilaRole" value="General Volunteer" onchange="handleUpazilaRoleSelect(this.value)" class="w-4 h-4 accent-vbdForest">
+                                    <div>
+                                        <span class="block text-xs font-bold text-slate-900">General Volunteer</span>
+                                        <span class="block text-[11px] text-slate-500">General Attendee</span>
+                                    </div>
+                                </label>
+                            </div>
+                        </div>
+
+                        <div id="sub-upazila-board-pos" class="conditional-panel hidden-panel pt-4 border-t border-slate-200">
+                            <label for="upazilaBoardPosition" class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">
+                                Specific Board Position <span class="text-red-500">*</span>
+                            </label>
+                            <select id="upazilaBoardPosition" name="upazilaBoardPosition"
+                                class="w-full px-4 py-3 rounded-xl border border-slate-300 focus:border-vbdForest focus:ring-2 focus:ring-vbdForest/15 outline-none transition text-sm bg-white">
+                                <option value="" disabled selected>Select board position</option>
+                                <option value="President">President</option>
+                                <option value="Vice President">Vice President</option>
+                                <option value="General Secretary">General Secretary</option>
+                                <option value="Treasurer">Treasurer</option>
+                                <option value="Public Relations Officer (PRO)">Public Relations Officer (PRO)</option>
+                            </select>
+                        </div>
+
+                        <div id="sub-upazila-ir-inst" class="conditional-panel hidden-panel pt-4 border-t border-slate-200">
+                            <label for="institutionName" class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">
+                                Institution Name <span class="text-red-500">*</span>
+                            </label>
+                            <input type="text" id="institutionName" name="institutionName" placeholder="Enter school, college, or university name"
+                                class="w-full px-4 py-3 rounded-xl border border-slate-300 focus:border-vbdForest focus:ring-2 focus:ring-vbdForest/15 outline-none transition text-sm bg-white">
+                        </div>
+                    </div>
+
+                    <div id="branch-district" class="conditional-panel hidden-panel bg-slate-50 border border-slate-200 rounded-xl p-4 sm:p-5 space-y-4">
+                        <div>
+                            <label for="districtPosition" class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">
+                                District Executive Position <span class="text-red-500">*</span>
+                            </label>
+                            <input type="text" id="districtPosition" name="districtPosition" placeholder="e.g., President, Director of HR, etc."
+                                class="w-full px-4 py-3 rounded-xl border border-slate-300 focus:border-vbdForest focus:ring-2 focus:ring-vbdForest/15 outline-none transition text-sm bg-white">
+                        </div>
+                    </div>
+
+                    <div id="branch-division" class="conditional-panel hidden-panel bg-slate-50 border border-slate-200 rounded-xl p-4 sm:p-5 space-y-4">
+                        <div>
+                            <label for="divisionName" class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">
+                                Select Division <span class="text-red-500">*</span>
+                            </label>
+                            <select id="divisionName" name="divisionName"
+                                class="w-full px-4 py-3 rounded-xl border border-slate-300 focus:border-vbdForest focus:ring-2 focus:ring-vbdForest/15 outline-none transition text-sm bg-white">
+                                <option value="" disabled selected>Select division</option>
+                                <option value="Dhaka Division">Dhaka Division</option>
+                                <option value="Chattogram Division">Chattogram Division</option>
+                                <option value="Rajshahi Division">Rajshahi Division</option>
+                                <option value="Khulna Division">Khulna Division</option>
+                                <option value="Barishal Division">Barishal Division</option>
+                                <option value="Sylhet Division">Sylhet Division</option>
+                                <option value="Rangpur Division">Rangpur Division</option>
+                                <option value="Mymensingh Division">Mymensingh Division</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div id="branch-national" class="conditional-panel hidden-panel bg-slate-50 border border-slate-200 rounded-xl p-4 sm:p-5 space-y-4">
+                        <div>
+                            <label for="nationalPosition" class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">
+                                National Board Designation <span class="text-red-500">*</span>
+                            </label>
+                            <input type="text" id="nationalPosition" name="nationalPosition" placeholder="Enter your national executive role"
+                                class="w-full px-4 py-3 rounded-xl border border-slate-300 focus:border-vbdForest focus:ring-2 focus:ring-vbdForest/15 outline-none transition text-sm bg-white">
+                        </div>
+                    </div>
+
+                    <div id="branch-ydp" class="conditional-panel hidden-panel bg-slate-50 border border-slate-200 rounded-xl p-4 sm:p-5 space-y-4">
+                        <div>
+                            <label for="ydpTrack" class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">
+                                YDP Track / Role <span class="text-red-500">*</span>
+                            </label>
+                            <input type="text" id="ydpTrack" name="ydpTrack" placeholder="Enter your YDP track or assignment"
+                                class="w-full px-4 py-3 rounded-xl border border-slate-300 focus:border-vbdForest focus:ring-2 focus:ring-vbdForest/15 outline-none transition text-sm bg-white">
+                        </div>
+                    </div>
+
+                    <div id="branch-alumni" class="conditional-panel hidden-panel bg-slate-50 border border-slate-200 rounded-xl p-4 sm:p-5 space-y-4">
+                        <div>
+                            <label for="alumniBatch" class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">
+                                Former Board / Tenure Year <span class="text-red-500">*</span>
+                            </label>
+                            <input type="text" id="alumniBatch" name="alumniBatch" placeholder="e.g., VBD Dhaka District South Board 2024"
+                                class="w-full px-4 py-3 rounded-xl border border-slate-300 focus:border-vbdForest focus:ring-2 focus:ring-vbdForest/15 outline-none transition text-sm bg-white">
+                        </div>
+                    </div>
+
+                    <div id="branch-general" class="conditional-panel hidden-panel bg-slate-50 border border-slate-200 rounded-xl p-4 sm:p-5 space-y-4">
+                        <div>
+                            <label for="guestAffiliation" class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">
+                                Organization / Reference (Optional)
+                            </label>
+                            <input type="text" id="guestAffiliation" name="guestAffiliation" placeholder="Enter your organization or reference name"
+                                class="w-full px-4 py-3 rounded-xl border border-slate-300 focus:border-vbdForest focus:ring-2 focus:ring-vbdForest/15 outline-none transition text-sm bg-white">
+                        </div>
+                    </div>
+
+                </div>
+            </section>
+
+            <!-- SECTION 3 -->
+            <section id="paymentSection" class="bg-white rounded-2xl shadow-sm border border-slate-200/90 p-5 sm:p-8">
+                <div class="flex items-center gap-3 mb-6 pb-3.5 border-b border-slate-100">
+                    <div class="w-7 h-7 rounded-lg bg-vbdForest text-white flex items-center justify-center font-bold text-xs shrink-0">3</div>
+                    <h3 class="text-sm sm:text-base font-bold text-slate-900">Registration Fee &amp; Payment Verification</h3>
+                </div>
+
+                <div id="feeDisplayCard" class="bg-gradient-to-br from-vbdDeep to-vbdForest text-white rounded-2xl p-5 sm:p-6 mb-6 border border-emerald-800 shadow-sm">
+                    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                        <div>
+                            <span class="block text-[11px] font-bold uppercase tracking-widest text-accentGold mb-1">Applicable Registration Fee</span>
+                            <h4 id="feeAmountText" class="font-display text-2xl sm:text-3xl font-extrabold text-white">Select Category Above</h4>
+                        </div>
+                        <div id="feeBadge" class="inline-flex items-center self-start sm:self-center px-3 py-1 rounded-full bg-white/10 border border-white/15 text-xs font-medium text-emerald-100">
+                            Pending Category
+                        </div>
+                    </div>
+                    <p id="feeDescriptionText" class="mt-3 text-xs text-emerald-100/85 leading-relaxed border-t border-white/10 pt-3">
+                        Please select your organizational category (and Upazila unit, if applicable) to view your exact registration fee.
+                    </p>
+                </div>
+
+                <div class="bg-slate-50 border border-slate-200 rounded-2xl p-4 sm:p-5 mb-6">
+                    <div class="flex items-center justify-between mb-3">
+                        <span class="text-xs font-bold uppercase tracking-wider text-slate-700 flex items-center gap-2">
+                            <span class="w-2 h-2 rounded-full bg-pink-600"></span>
+                            Official bKash Payment Account (Send Money)
+                        </span>
+                        <span class="text-[11px] font-semibold text-slate-500 bg-white px-2.5 py-0.5 rounded border border-slate-200">Personal</span>
+                    </div>
+
+                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-white p-3.5 rounded-xl border border-slate-200 mb-3">
+                        <div>
+                            <span class="block text-[11px] text-slate-500 font-medium">bKash Account Number</span>
+                            <span id="bkashNumberDisplay" class="font-mono text-base sm:text-lg font-extrabold text-slate-900 tracking-wide">01779784160</span>
+                        </div>
+                        <button type="button" onclick="copyBkashNumber()" id="copyBtn"
+                            class="inline-flex items-center justify-center gap-2 px-4 py-2 rounded-lg bg-slate-100 hover:bg-vbdForest hover:text-white text-slate-800 font-semibold text-xs transition cursor-pointer">
+                            <i class="fa-regular fa-copy"></i>
+                            <span>Copy Number</span>
+                        </button>
+                    </div>
+
+                    <div class="text-xs text-slate-600 flex flex-col sm:flex-row sm:items-center justify-between gap-2 pt-1">
+                        <div>
+                            <span class="font-bold text-slate-800">Md. Nahid Hasan Sharif</span> — Treasurer, Dhaka District (South)
+                        </div>
+                        <div class="text-slate-500">
+                            <i class="fa-regular fa-envelope mr-1"></i> nahid.sharif@vbd.com.bd
+                        </div>
+                    </div>
+                </div>
+
+                <div>
+                    <label for="paymentScreenshot" class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">
+                        Upload Payment Screenshot (bKash) <span class="text-red-500">*</span>
+                    </label>
+                    <div class="relative border-2 border-dashed border-slate-300 hover:border-vbdForest rounded-xl p-5 text-center transition bg-slate-50/50">
+                        <input type="file" id="paymentScreenshot" name="paymentScreenshot" accept="image/*" required onchange="handleFileSelect(this)"
+                            class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10">
+                        <div id="uploadPlaceholder" class="space-y-1.5">
+                            <div class="w-10 h-10 rounded-full bg-emerald-50 text-vbdForest mx-auto flex items-center justify-center">
+                                <i class="fa-solid fa-cloud-arrow-up text-base"></i>
+                            </div>
+                            <p class="text-xs sm:text-sm font-semibold text-slate-800">Tap or drag to upload transaction screenshot</p>
+                            <p class="text-[11px] text-slate-500">Supports PNG, JPG, JPEG (Max 5MB)</p>
+                        </div>
+                        <div id="uploadSelected" class="hidden flex items-center justify-center gap-2.5 text-vbdForest font-semibold text-xs sm:text-sm">
+                            <i class="fa-solid fa-file-image text-base"></i>
+                            <span id="selectedFileName" class="truncate max-w-xs">screenshot.png</span>
+                            <span class="text-[11px] bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded">Attached</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <div class="pt-1">
+                <button type="submit" id="submitBtn"
+                    class="w-full bg-vbdForest hover:bg-vbdDeep text-white font-bold py-4 px-6 rounded-xl shadow-md transition duration-200 text-xs sm:text-sm tracking-wider uppercase flex items-center justify-center space-x-2 cursor-pointer">
+                    <span>Confirm Registration</span>
+                    <i class="fa-solid fa-arrow-right text-xs"></i>
+                </button>
+            </div>
+
+            <div id="successMessage" class="hidden-panel bg-emerald-50 border border-emerald-200 text-emerald-950 p-5 rounded-xl text-center">
+                <div class="flex items-center justify-center space-x-2 mb-1">
+                    <i class="fa-solid fa-circle-check text-emerald-600 text-lg"></i>
+                    <span class="font-bold text-sm">Registration Confirmed</span>
+                </div>
+                <p class="text-xs text-emerald-800">Your delegate profile and payment verification have been recorded successfully.</p>
+            </div>
+
+        </form>
+    </main>
+
+    <footer class="bg-white border-t border-slate-200 py-6 mt-10 text-center text-xs text-slate-500 px-4">
+        <p>&copy; 2026 Volunteer for Bangladesh (VBD) Dhaka District South. All Rights Reserved.</p>
+    </footer>
+
+    <script>
+        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzeb4ThSsTj0UdMWmMN_jCiv5IvyoPabXBvb-VNLrPLpyaayTXsKgvujcIjv5RXQyTktQ/exec";
+        let currentCalculatedFee = "";
+
+        window.addEventListener('DOMContentLoaded', () => {
+            createSparkles();
+            setTimeout(() => {
+                const overlay = document.getElementById('introOverlay');
+                overlay.classList.add('curtains-open');
+                setTimeout(() => {
+                    overlay.classList.add('stage-visible');
+                }, 350);
+            }, 700);
+        });
+
+        function createSparkles() {
+            const container = document.getElementById('sparkleContainer');
+            for (let i = 0; i < 24; i++) {
+                const sp = document.createElement('div');
+                sp.className = 'sparkle';
+                sp.style.left = Math.random() * 100 + '%';
+                sp.style.top = (45 + Math.random() * 50) + '%';
+                sp.style.animationDelay = (Math.random() * 2.5) + 's';
+                sp.style.animationDuration = (2.8 + Math.random() * 2) + 's';
+                container.appendChild(sp);
+            }
+        }
+
+        function enterRegistrationPortal() {
+            const overlay = document.getElementById('introOverlay');
+            overlay.style.opacity = '0';
+            overlay.style.visibility = 'hidden';
+            setTimeout(() => {
+                overlay.style.display = 'none';
+            }, 600);
+        }
+
+        function updateFeeDisplay(category, upazila = "") {
+            const amountEl = document.getElementById('feeAmountText');
+            const badgeEl = document.getElementById('feeBadge');
+            const descEl = document.getElementById('feeDescriptionText');
+
+            const leadershipCategories = [
+                'District Board Member',
+                'Division Board Member',
+                'National Board Member',
+                'YDP Team',
+                'Alumni'
+            ];
+
+            if (category === 'Upazila Level') {
+                if (upazila === 'Dhaka South City Corporation (DSCC)') {
+                    currentCalculatedFee = "400 BDT";
+                    amountEl.textContent = "400 BDT";
+                    badgeEl.textContent = "DSCC Standard Delegate";
+                    descEl.textContent = "Standard registration fee for delegates representing Dhaka South City Corporation (DSCC).";
+                } else if (upazila === 'Keraniganj' || upazila === 'Nawabganj' || upazila === 'Dohar') {
+                    currentCalculatedFee = "350 BDT";
+                    amountEl.textContent = "350 BDT";
+                    badgeEl.textContent = upazila + " Delegate";
+                    descEl.textContent = "Subsidized regional delegate registration fee for " + upazila + " unit.";
+                } else {
+                    currentCalculatedFee = "";
+                    amountEl.textContent = "Select Upazila Unit";
+                    badgeEl.textContent = "Upazila Level";
+                    descEl.textContent = "Please select your specific Upazila above to display your applicable registration fee (400 BDT for DSCC / 350 BDT for Keraniganj, Nawabganj, Dohar).";
+                }
+            } else if (leadershipCategories.includes(category)) {
+                currentCalculatedFee = "500 BDT+ (Starting Minimum)";
+                amountEl.textContent = "500 BDT (Starting)";
+                badgeEl.textContent = "Executive / Alumni Tier";
+                descEl.textContent = "Minimum contribution starts at 500 BDT. Senior leaders, board members, and alumni are warmly welcome to contribute any higher amount at their discretion.";
+            } else if (category === 'General Member / Guest') {
+                currentCalculatedFee = "400 BDT";
+                amountEl.textContent = "400 BDT";
+                badgeEl.textContent = "General / Guest Pass";
+                descEl.textContent = "Standard registration fee for General Members and Invited Guests.";
+            }
+        }
+
+        function hideAllBranches() {
+            const branches = ['branch-upazila', 'branch-district', 'branch-division', 'branch-national', 'branch-ydp', 'branch-alumni', 'branch-general'];
+            branches.forEach(id => {
+                const el = document.getElementById(id);
+                el.classList.remove('visible-panel');
+                el.classList.add('hidden-panel');
+            });
+        }
+
+        function handleCategoryChange(category) {
+            hideAllBranches();
+
+            if (category === 'Upazila Level') {
+                document.getElementById('branch-upazila').classList.remove('hidden-panel');
+                document.getElementById('branch-upazila').classList.add('visible-panel');
+                const currentUpazila = document.getElementById('upazilaName').value;
+                updateFeeDisplay(category, currentUpazila);
+            } else if (category === 'District Board Member') {
+                document.getElementById('branch-district').classList.remove('hidden-panel');
+                document.getElementById('branch-district').classList.add('visible-panel');
+                updateFeeDisplay(category);
+            } else if (category === 'Division Board Member') {
+                document.getElementById('branch-division').classList.remove('hidden-panel');
+                document.getElementById('branch-division').classList.add('visible-panel');
+                updateFeeDisplay(category);
+            } else if (category === 'National Board Member') {
+                document.getElementById('branch-national').classList.remove('hidden-panel');
+                document.getElementById('branch-national').classList.add('visible-panel');
+                updateFeeDisplay(category);
+            } else if (category === 'YDP Team') {
+                document.getElementById('branch-ydp').classList.remove('hidden-panel');
+                document.getElementById('branch-ydp').classList.add('visible-panel');
+                updateFeeDisplay(category);
+            } else if (category === 'Alumni') {
+                document.getElementById('branch-alumni').classList.remove('hidden-panel');
+                document.getElementById('branch-alumni').classList.add('visible-panel');
+                updateFeeDisplay(category);
+            } else if (category === 'General Member / Guest') {
+                document.getElementById('branch-general').classList.remove('hidden-panel');
+                document.getElementById('branch-general').classList.add('visible-panel');
+                updateFeeDisplay(category);
+            }
+        }
+
+        function handleUpazilaSelect(upazila) {
+            const subRole = document.getElementById('sub-upazila-role');
+            if (upazila) {
+                subRole.classList.remove('hidden-panel');
+                subRole.classList.add('visible-panel');
+                updateFeeDisplay('Upazila Level', upazila);
+            }
+        }
+
+        function handleUpazilaRoleSelect(role) {
+            const boardPos = document.getElementById('sub-upazila-board-pos');
+            const irInst = document.getElementById('sub-upazila-ir-inst');
+
+            boardPos.classList.remove('visible-panel');
+            boardPos.classList.add('hidden-panel');
+            irInst.classList.remove('visible-panel');
+            irInst.classList.add('hidden-panel');
+
+            if (role === 'Upazila Board Member') {
+                boardPos.classList.remove('hidden-panel');
+                boardPos.classList.add('visible-panel');
+            } else if (role === 'Institute Representative (IR)') {
+                irInst.classList.remove('hidden-panel');
+                irInst.classList.add('visible-panel');
+            }
+        }
+
+        function copyBkashNumber() {
+            const num = document.getElementById('bkashNumberDisplay').textContent.trim();
+            navigator.clipboard.writeText(num).then(() => {
+                const btn = document.getElementById('copyBtn');
+                btn.innerHTML = `<i class="fa-solid fa-check text-emerald-500"></i><span>Copied</span>`;
+                setTimeout(() => {
+                    btn.innerHTML = `<i class="fa-regular fa-copy"></i><span>Copy Number</span>`;
+                }, 2500);
+            });
+        }
+
+        let uploadedScreenshotBase64 = "";
+        let uploadedScreenshotName = "";
+
+        function handleFileSelect(input) {
+            const file = input.files[0];
+            if (!file) return;
+
+            if (file.size > 5 * 1024 * 1024) {
+                alert('File size exceeds 5MB limit. Please upload a smaller screenshot.');
+                input.value = "";
+                return;
+            }
+
+            uploadedScreenshotName = file.name;
+            document.getElementById('selectedFileName').textContent = file.name;
+            document.getElementById('uploadPlaceholder').classList.add('hidden');
+            document.getElementById('uploadSelected').classList.remove('hidden');
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                uploadedScreenshotBase64 = e.target.result;
+            };
+            reader.readAsDataURL(file);
+        }
+
+        document.getElementById('vbdRegistrationForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            const fullName = document.getElementById('fullName').value.trim();
+            const phone = document.getElementById('phone').value.trim();
+            const email = document.getElementById('email').value.trim();
+            const selectedCategory = document.querySelector('input[name="primaryCategory"]:checked');
+            const screenshotInput = document.getElementById('paymentScreenshot');
+
+            if (!fullName || !phone || !email) {
+                alert('Please complete all required personal and contact fields.');
+                return;
+            }
+
+            if (!selectedCategory) {
+                alert('Please select your primary organizational category.');
+                return;
+            }
+
+            if (selectedCategory.value === 'Upazila Level' && !document.getElementById('upazilaName').value) {
+                alert('Please select your Upazila unit.');
+                return;
+            }
+
+            if (!screenshotInput.files || screenshotInput.files.length === 0) {
+                alert('Please upload your bKash payment transaction screenshot.');
+                return;
+            }
+
+            const btn = document.getElementById('submitBtn');
+            btn.disabled = true;
+            btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin mr-2"></i> Submitting Registration...`;
+
+            const formData = {
+                fullName: fullName,
+                phone: phone,
+                email: email,
+                category: selectedCategory.value,
+                subCategory: 
+                    document.getElementById('upazilaName').value || 
+                    document.getElementById('districtPosition').value || 
+                    document.getElementById('divisionName').value || 
+                    document.getElementById('nationalPosition').value || 
+                    document.getElementById('ydpTrack').value || 
+                    document.getElementById('alumniBatch').value || 
+                    document.getElementById('guestAffiliation').value || "",
+                upazila: document.getElementById('upazilaName').value || "",
+                role: 
+                    document.querySelector('input[name="upazilaRole"]:checked')?.value || 
+                    document.getElementById('upazilaBoardPosition').value || 
+                    selectedCategory.value,
+                institution: document.getElementById('institutionName').value || "",
+                feeTier: currentCalculatedFee,
+                screenshotName: uploadedScreenshotName,
+                screenshotData: uploadedScreenshotBase64
+            };
+
+            fetch(SCRIPT_URL, {
+                method: 'POST',
+                mode: 'no-cors',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(formData)
+            })
+            .then(() => {
+                document.getElementById('vbdRegistrationForm').reset();
+                hideAllBranches();
+                document.getElementById('sub-upazila-role').classList.add('hidden-panel');
+                document.getElementById('sub-upazila-board-pos').classList.add('hidden-panel');
+                document.getElementById('sub-upazila-ir-inst').classList.add('hidden-panel');
+                document.getElementById('uploadPlaceholder').classList.remove('hidden');
+                document.getElementById('uploadSelected').classList.add('hidden');
+                document.getElementById('feeAmountText').textContent = "Select Category Above";
+                document.getElementById('feeBadge').textContent = "Pending Category";
+                uploadedScreenshotBase64 = "";
+                uploadedScreenshotName = "";
+
+                const successBox = document.getElementById('successMessage');
+                successBox.classList.remove('hidden-panel');
+                successBox.classList.add('visible-panel');
+
+                btn.disabled = false;
+                btn.innerHTML = `<span>Confirm Registration</span> <i class="fa-solid fa-arrow-right text-xs"></i>`;
+
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+
+                setTimeout(() => {
+                    successBox.classList.remove('visible-panel');
+                    successBox.classList.add('hidden-panel');
+                }, 7000);
+            })
+            .catch(error => {
+                console.error('Submission Error:', error);
+                alert('An error occurred during submission. Please try again.');
+                btn.disabled = false;
+                btn.innerHTML = `<span>Confirm Registration</span> <i class="fa-solid fa-arrow-right text-xs"></i>`;
+            });
+        });
+    </script>
+</body>
+</html>
