@@ -19,11 +19,16 @@
                         display: ['Plus Jakarta Sans', 'sans-serif'],
                     },
                     colors: {
-                        vbdDeep: '#041E17',
-                        vbdForest: '#0A362A',
-                        vbdEmerald: '#115E48',
-                        accentGold: '#D4AF37',
-                        goldLight: '#F3E5AB',
+                        vbdDeep: '#0E0E5E',
+                        vbdForest: '#1B1B8C',
+                        vbdEmerald: '#2929B5',
+                        accentGold: '#A8FF00',
+                        goldLight: '#E3FF99',
+                        emerald: {
+                            50: '#EEF0FF', 100: '#DCE0FF', 200: '#BCC3F5', 300: '#9AA4F0', 400: '#7480E8',
+                            500: '#4A55D6', 600: '#3A3FC4', 700: '#2E2FA8', 800: '#25258F', 900: '#1B1B7A', 950: '#12125C'
+                        },
+                        amber: { 400: '#C6FF3D', 500: '#A8FF00' }
                     }
                 }
             }
@@ -31,11 +36,11 @@
     </script>
     <style>
         .ambient-bg {
-            background-color: #F4F7F6;
+            background-color: #F2F3FB;
             background-image: 
-                radial-gradient(at 15% 15%, rgba(10, 54, 42, 0.06) 0px, transparent 50%),
-                radial-gradient(at 85% 25%, rgba(212, 175, 55, 0.07) 0px, transparent 50%),
-                radial-gradient(at 50% 85%, rgba(17, 94, 72, 0.05) 0px, transparent 50%);
+                radial-gradient(at 15% 15%, rgba(30, 30, 140, 0.07) 0px, transparent 50%),
+                radial-gradient(at 85% 25%, rgba(168, 255, 0, 0.09) 0px, transparent 50%),
+                radial-gradient(at 50% 85%, rgba(42, 42, 184, 0.06) 0px, transparent 50%);
             background-size: 200% 200%;
             animation: ambientShift 18s ease infinite;
         }
@@ -60,18 +65,18 @@
             top: 0;
             bottom: 0;
             width: 50.5%;
-            background: linear-gradient(145deg, #041E17 0%, #0A362A 100%);
+            background: linear-gradient(145deg, #0E0E5E 0%, #1B1B8C 100%);
             z-index: 10;
             transition: transform 1.15s cubic-bezier(0.77, 0, 0.175, 1);
             box-shadow: 0 0 50px rgba(0,0,0,0.6);
         }
         #curtainLeft {
             left: 0;
-            border-right: 1px solid rgba(212, 175, 55, 0.35);
+            border-right: 1px solid rgba(168, 255, 0, 0.35);
         }
         #curtainRight {
             right: 0;
-            border-left: 1px solid rgba(212, 175, 55, 0.35);
+            border-left: 1px solid rgba(168, 255, 0, 0.35);
         }
         .curtains-open #curtainLeft {
             transform: translateX(-100%);
@@ -97,8 +102,8 @@
             width: 4px;
             height: 4px;
             border-radius: 50%;
-            background: #D4AF37;
-            box-shadow: 0 0 8px #D4AF37, 0 0 14px #F3E5AB;
+            background: #A8FF00;
+            box-shadow: 0 0 8px #A8FF00, 0 0 14px #E3FF99;
             opacity: 0;
             pointer-events: none;
             animation: floatSparkle 3.5s ease-in-out infinite;
@@ -129,18 +134,64 @@
         }
 
         .role-card input:checked + .role-card-content {
-            border-color: #0A362A;
-            background-color: #F0F7F4;
-            box-shadow: 0 4px 14px rgba(10, 54, 42, 0.08);
+            border-color: #1B1B8C;
+            background-color: #EEF0FF;
+            box-shadow: 0 4px 14px rgba(27, 27, 140, 0.10);
         }
         .role-card input:checked + .role-card-content .check-indicator {
-            background-color: #0A362A;
-            border-color: #0A362A;
+            background-color: #1B1B8C;
+            border-color: #1B1B8C;
             color: #FFFFFF;
+        }
+
+        /* ---------- Music note animations (added) ---------- */
+        .music-note {
+            position: absolute;
+            font-weight: 800;
+            line-height: 1;
+            opacity: 0;
+            pointer-events: none;
+            user-select: none;
+            animation: noteRise linear infinite;
+        }
+        @keyframes noteRise {
+            0%   { transform: translateY(0) translateX(0) rotate(-12deg) scale(0.7); opacity: 0; }
+            15%  { opacity: var(--note-op, 0.85); }
+            50%  { transform: translateY(-45vh) translateX(var(--note-sway, 24px)) rotate(14deg) scale(1); }
+            85%  { opacity: var(--note-op, 0.85); }
+            100% { transform: translateY(-95vh) translateX(calc(var(--note-sway, 24px) * -1)) rotate(-10deg) scale(1.1); opacity: 0; }
+        }
+        #introNotes { position: absolute; inset: 0; z-index: 1; overflow: hidden; pointer-events: none; }
+        #bgNotes { position: fixed; inset: 0; z-index: -1; overflow: hidden; pointer-events: none; }
+        .mnemonic-glow { animation: mnemonicPulse 3.2s ease-in-out infinite; }
+        @keyframes mnemonicPulse {
+            0%, 100% { filter: drop-shadow(0 0 0 rgba(168,255,0,0)); }
+            50% { filter: drop-shadow(0 0 10px rgba(168,255,0,0.55)); }
+        }
+        #revealStage::before {
+            content: "";
+            position: absolute;
+            inset: -2px;
+            border-radius: 26px;
+            padding: 2px;
+            background: linear-gradient(120deg, #A8FF00, transparent 30%, #A8FF00 60%, transparent 90%);
+            background-size: 250% 250%;
+            -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+            -webkit-mask-composite: xor;
+            mask-composite: exclude;
+            animation: borderFlow 4s linear infinite;
+            pointer-events: none;
+        }
+        @keyframes borderFlow {
+            0% { background-position: 0% 50%; }
+            100% { background-position: 250% 50%; }
         }
     </style>
 </head>
 <body class="ambient-bg text-slate-900 antialiased min-h-screen flex flex-col selection:bg-vbdForest selection:text-white">
+
+    <!-- Floating music notes behind the main form (added) -->
+    <div id="bgNotes"></div>
 
     <!-- CURTAIN REVEAL & WELCOME STAGE -->
     <div id="introOverlay" class="bg-vbdDeep">
@@ -152,12 +203,17 @@
         </div>
 
         <div id="sparkleContainer" class="absolute inset-0 z-0 overflow-hidden pointer-events-none"></div>
+        <div id="introNotes"></div>
 
         <div id="revealStage" class="max-w-lg w-full mx-4 text-center px-6 py-10 sm:p-12 rounded-3xl bg-vbdForest/60 backdrop-blur-xl border border-emerald-800/60 shadow-2xl">
-            <div class="inline-flex items-center justify-center mb-6">
+            <div class="inline-flex items-center justify-center gap-4 sm:gap-5 mb-6">
                 <img src="https://raw.githubusercontent.com/fazliyrabby-commits/white-vbd-logo/main/vbd%20white%20logo.png" 
                      alt="Volunteer for Bangladesh Logo" 
                      class="h-14 sm:h-16 w-auto object-contain drop-shadow-md">
+                <div class="w-px h-12 sm:h-14 bg-gradient-to-b from-transparent via-accentGold/60 to-transparent"></div>
+                <img src="https://github.com/fazliyrabby-commits/harmoni-logo/blob/main/grand%20logo%404x.png?raw=true" 
+                     alt="The Grand Harmony Logo" 
+                     class="mnemonic-glow h-14 sm:h-16 w-auto object-contain drop-shadow-md">
             </div>
 
             <div class="inline-block px-3.5 py-1 rounded-full bg-emerald-950/80 border border-accentGold/40 text-accentGold text-[11px] font-bold uppercase tracking-[0.2em] mb-4">
@@ -165,7 +221,7 @@
             </div>
 
             <h1 class="font-display text-2xl sm:text-3xl font-extrabold text-white tracking-tight leading-snug mb-3">
-                Grand Closing Assembly &amp; Inauguration 2026
+                The Grand Harmony 2026
             </h1>
 
             <p class="text-xs sm:text-sm text-emerald-100/80 leading-relaxed max-w-md mx-auto mb-8">
@@ -187,6 +243,9 @@
                 <img src="https://raw.githubusercontent.com/fazliyrabby-commits/white-vbd-logo/main/vbd%20white%20logo.png" 
                      alt="VBD Logo" 
                      class="h-9 sm:h-10 w-auto object-contain shrink-0">
+                <img src="https://github.com/fazliyrabby-commits/harmoni-logo/blob/main/grand%20logo%404x.png?raw=true" 
+                     alt="The Grand Harmony Logo" 
+                     class="h-9 sm:h-10 w-auto object-contain shrink-0">
                 <div class="border-l border-emerald-800/80 pl-3">
                     <span class="block text-[10px] sm:text-xs font-semibold tracking-wider uppercase text-emerald-300/90">Volunteer for Bangladesh</span>
                     <span class="block text-xs sm:text-sm font-bold text-white tracking-tight">Dhaka District South</span>
@@ -207,7 +266,7 @@
                 Official Registration Portal
             </div>
             <h2 class="font-display text-xl sm:text-3xl font-extrabold tracking-tight text-slate-900 leading-snug">
-                Grand Closing Assembly &amp; Inauguration 2026
+                The Grand Harmony 2026
             </h2>
             <p class="mt-2 text-xs sm:text-sm text-slate-600 leading-relaxed">
                 Complete your official registration below to confirm your seat, delegate credentials, and event access for the upcoming Dhaka District South assembly.
@@ -916,6 +975,34 @@
                 btn.innerHTML = `<span>Confirm Registration</span> <i class="fa-solid fa-arrow-right text-xs"></i>`;
             });
         });
+    </script>
+
+    <!-- Music note animation (added; independent of the form logic above) -->
+    <script>
+        (function () {
+            var glyphs = ['\u266A', '\u266B', '\u2669', '\u266C'];
+            function spawn(container, count, lime, blue, minSize, maxSize) {
+                if (!container) return;
+                for (var i = 0; i < count; i++) {
+                    var n = document.createElement('span');
+                    n.className = 'music-note';
+                    n.textContent = glyphs[Math.floor(Math.random() * glyphs.length)];
+                    n.style.left = (Math.random() * 100) + '%';
+                    n.style.top = (55 + Math.random() * 50) + '%';
+                    n.style.fontSize = (minSize + Math.random() * (maxSize - minSize)) + 'px';
+                    n.style.color = Math.random() > 0.45 ? lime : blue;
+                    n.style.setProperty('--note-sway', (Math.random() * 50 - 25) + 'px');
+                    n.style.setProperty('--note-op', (0.35 + Math.random() * 0.5).toFixed(2));
+                    n.style.animationDuration = (9 + Math.random() * 9) + 's';
+                    n.style.animationDelay = (-Math.random() * 14) + 's';
+                    container.appendChild(n);
+                }
+            }
+            window.addEventListener('DOMContentLoaded', function () {
+                spawn(document.getElementById('introNotes'), 22, '#A8FF00', '#FFFFFF', 18, 44);
+                spawn(document.getElementById('bgNotes'), 18, '#A8FF00', '#2929B5', 22, 54);
+            });
+        })();
     </script>
 </body>
 </html>
