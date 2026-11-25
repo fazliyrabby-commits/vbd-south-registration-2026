@@ -125,18 +125,21 @@
             justify-content: center;
             overflow: hidden;
             padding: 1rem;
-            transition: opacity 0.65s ease, visibility 0.65s ease;
+            background-color: #0B0924;
+            transition: opacity 0.6s ease, visibility 0.6s ease;
         }
 
         .curtain-panel {
-            position: absolute;
+            position: fixed;
             top: 0;
             bottom: 0;
             width: 50.5%;
             background: linear-gradient(145deg, #0B0924 0%, #19144A 55%, #0F0C2E 100%);
-            z-index: 10;
+            z-index: 25;
+            transform: translateX(0%);
             transition: transform 1.2s cubic-bezier(0.77, 0, 0.175, 1);
             box-shadow: 0 0 60px rgba(0, 0, 0, 0.75);
+            will-change: transform;
         }
 
         #curtainLeft {
@@ -163,23 +166,24 @@
             50% { opacity: 0.95; transform: scaleY(1.04); }
         }
 
-        .curtains-open #curtainLeft {
+        #introOverlay.curtains-open #curtainLeft {
             transform: translateX(-100%);
         }
 
-        .curtains-open #curtainRight {
+        #introOverlay.curtains-open #curtainRight {
             transform: translateX(100%);
         }
 
         #revealStage {
             position: relative;
-            z-index: 20;
+            z-index: 15;
             opacity: 0;
             transform: scale(0.95) translateY(14px);
-            transition: all 0.9s cubic-bezier(0.16, 1, 0.3, 1);
+            transition: opacity 0.85s cubic-bezier(0.16, 1, 0.3, 1), transform 0.85s cubic-bezier(0.16, 1, 0.3, 1);
+            will-change: opacity, transform;
         }
 
-        .stage-visible #revealStage {
+        #introOverlay.stage-visible #revealStage {
             opacity: 1;
             transform: scale(1) translateY(0);
         }
@@ -275,7 +279,7 @@
     <div class="music-eq-bg" id="musicEqBg" aria-hidden="true"></div>
 
     <!-- CURTAIN REVEAL & WELCOME STAGE -->
-    <div id="introOverlay" class="bg-harmonyMidnight">
+    <div id="introOverlay">
         <div id="curtainLeft" class="curtain-panel flex items-center justify-end pr-3 sm:pr-4">
             <div class="curtain-rhythm-accent"></div>
         </div>
@@ -541,4 +545,104 @@
                                     </div>
                                 </label>
                                 <label class="cursor-pointer flex items-center gap-3 p-3 bg-white border border-slate-200 rounded-xl hover:border-harmonyIndigo transition">
-                                    <input type="radio" name="upazilaRole" value="Committee Member (CM)"
+                                    <input type="radio" name="upazilaRole" value="Committee Member (CM)" onchange="handleUpazilaRoleSelect(this.value)" class="w-4 h-4 accent-harmonyIndigo">
+                                    <div>
+                                        <span class="block text-xs font-bold text-slate-900">Committee Member (CM)</span>
+                                        <span class="block text-[11px] text-slate-500">Inauguration Member</span>
+                                    </div>
+                                </label>
+                                <label class="cursor-pointer flex items-center gap-3 p-3 bg-white border border-slate-200 rounded-xl hover:border-harmonyIndigo transition">
+                                    <input type="radio" name="upazilaRole" value="Institute Representative (IR)" onchange="handleUpazilaRoleSelect(this.value)" class="w-4 h-4 accent-harmonyIndigo">
+                                    <div>
+                                        <span class="block text-xs font-bold text-slate-900">Institute Representative (IR)</span>
+                                        <span class="block text-[11px] text-slate-500">Appointed IR</span>
+                                    </div>
+                                </label>
+                                <label class="cursor-pointer flex items-center gap-3 p-3 bg-white border border-slate-200 rounded-xl hover:border-harmonyIndigo transition">
+                                    <input type="radio" name="upazilaRole" value="General Volunteer" onchange="handleUpazilaRoleSelect(this.value)" class="w-4 h-4 accent-harmonyIndigo">
+                                    <div>
+                                        <span class="block text-xs font-bold text-slate-900">General Volunteer</span>
+                                        <span class="block text-[11px] text-slate-500">General Attendee</span>
+                                    </div>
+                                </label>
+                            </div>
+                        </div>
+
+                        <!-- Upazila Board Positions (Bylaws v9.1) -->
+                        <div id="sub-upazila-board-pos" class="conditional-panel hidden-panel pt-4 border-t border-slate-200">
+                            <label for="upazilaBoardPosition" class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">
+                                Specific Board Position <span class="text-red-500">*</span>
+                            </label>
+                            <select id="upazilaBoardPosition" name="upazilaBoardPosition"
+                                class="harmony-input w-full px-4 py-3 rounded-xl border border-slate-300 outline-none text-sm bg-white">
+                                <option value="" disabled selected>Select board position</option>
+                                <option value="President">President</option>
+                                <option value="General Secretary">General Secretary</option>
+                                <option value="Finance Secretary">Finance Secretary</option>
+                                <option value="Project Secretary">Project Secretary</option>
+                                <option value="Human Resource Secretary">Human Resource Secretary</option>
+                            </select>
+                        </div>
+
+                        <!-- If IR Selected -->
+                        <div id="sub-upazila-ir-inst" class="conditional-panel hidden-panel pt-4 border-t border-slate-200">
+                            <label for="institutionName" class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">
+                                Institution Name <span class="text-red-500">*</span>
+                            </label>
+                            <input type="text" id="institutionName" name="institutionName" placeholder="Enter school, college, or university name"
+                                class="harmony-input w-full px-4 py-3 rounded-xl border border-slate-300 outline-none text-sm bg-white">
+                        </div>
+
+                        <!-- If General Volunteer Selected -->
+                        <div id="sub-upazila-general-aff" class="conditional-panel hidden-panel pt-4 border-t border-slate-200">
+                            <label for="generalAffiliation" class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">
+                                Institution / Organization / Reference <span class="text-red-500">*</span>
+                            </label>
+                            <input type="text" id="generalAffiliation" name="generalAffiliation" placeholder="Enter your institution, organization, or reference name"
+                                class="harmony-input w-full px-4 py-3 rounded-xl border border-slate-300 outline-none text-sm bg-white">
+                        </div>
+                    </div>
+
+                    <div id="branch-district" class="conditional-panel hidden-panel bg-slate-50/90 border border-slate-200 rounded-xl p-4 sm:p-5 space-y-4">
+                        <div>
+                            <label for="districtPosition" class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">
+                                District Executive Position <span class="text-red-500">*</span>
+                            </label>
+                            <input type="text" id="districtPosition" name="districtPosition" placeholder="e.g., President, Vice President - M&E, etc."
+                                class="harmony-input w-full px-4 py-3 rounded-xl border border-slate-300 outline-none text-sm bg-white">
+                        </div>
+                    </div>
+
+                    <div id="branch-division" class="conditional-panel hidden-panel bg-slate-50/90 border border-slate-200 rounded-xl p-4 sm:p-5 space-y-4">
+                        <div>
+                            <label for="divisionName" class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">
+                                Select Division <span class="text-red-500">*</span>
+                            </label>
+                            <select id="divisionName" name="divisionName"
+                                class="harmony-input w-full px-4 py-3 rounded-xl border border-slate-300 outline-none text-sm bg-white">
+                                <option value="" disabled selected>Select division</option>
+                                <option value="Dhaka Division">Dhaka Division</option>
+                                <option value="Chattogram Division">Chattogram Division</option>
+                                <option value="Rajshahi Division">Rajshahi Division</option>
+                                <option value="Khulna Division">Khulna Division</option>
+                                <option value="Barishal Division">Barishal Division</option>
+                                <option value="Sylhet Division">Sylhet Division</option>
+                                <option value="Rangpur Division">Rangpur Division</option>
+                                <option value="Mymensingh Division">Mymensingh Division</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div id="branch-national" class="conditional-panel hidden-panel bg-slate-50/90 border border-slate-200 rounded-xl p-4 sm:p-5 space-y-4">
+                        <div>
+                            <label for="nationalPosition" class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">
+                                National Board Designation <span class="text-red-500">*</span>
+                            </label>
+                            <input type="text" id="nationalPosition" name="nationalPosition" placeholder="Enter your national executive role"
+                                class="harmony-input w-full px-4 py-3 rounded-xl border border-slate-300 outline-none text-sm bg-white">
+                        </div>
+                    </div>
+
+                    <div id="branch-ydp" class="conditional-panel hidden-panel bg-slate-50/90 border border-slate-200 rounded-xl p-4 sm:p-5 space-y-4">
+                        <div>
+                            <label for="ydpTrack" class="block text-xs font-bold text-
