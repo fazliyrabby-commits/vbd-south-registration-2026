@@ -186,6 +186,20 @@
             0% { background-position: 0% 50%; }
             100% { background-position: 250% 50%; }
         }
+        /* ---------- Thank You overlay (added) ---------- */
+        #thankYouOverlay {
+            position: fixed; inset: 0; z-index: 110;
+            display: none; align-items: center; justify-content: center;
+            background: rgba(14, 14, 94, 0.93);
+            backdrop-filter: blur(6px);
+            padding: 1rem; overflow: hidden;
+        }
+        #thankYouOverlay.show { display: flex; animation: tyFade 0.4s ease-out forwards; }
+        @keyframes tyFade { from { opacity: 0; } to { opacity: 1; } }
+        .ty-card { animation: tyRise 0.6s cubic-bezier(0.16, 1, 0.3, 1) both; position: relative; z-index: 2; }
+        @keyframes tyRise { from { opacity: 0; transform: translateY(24px) scale(0.95); } to { opacity: 1; transform: none; } }
+        .ty-check { animation: tyPop 0.7s cubic-bezier(0.2, 1.5, 0.4, 1) 0.2s both; }
+        @keyframes tyPop { from { transform: scale(0) rotate(-30deg); } to { transform: scale(1) rotate(0); } }
     </style>
 </head>
 <body class="ambient-bg text-slate-900 antialiased min-h-screen flex flex-col selection:bg-vbdForest selection:text-white">
@@ -672,6 +686,36 @@
         </form>
     </main>
 
+    <!-- Thank You / Submitting overlay (added) -->
+    <div id="thankYouOverlay">
+        <div id="tyNotes" class="absolute inset-0 pointer-events-none"></div>
+        <div class="ty-card max-w-md w-full text-center bg-white rounded-3xl p-8 sm:p-10 shadow-2xl overflow-hidden">
+            <div class="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-vbdDeep via-vbdEmerald to-accentGold"></div>
+
+            <div id="tySubmitting">
+                <div class="w-16 h-16 rounded-full bg-emerald-50 text-vbdForest mx-auto flex items-center justify-center mb-4">
+                    <i class="fa-solid fa-spinner fa-spin text-2xl"></i>
+                </div>
+                <h3 class="font-display text-xl font-extrabold text-slate-900 mb-2">Submitting Your Registration</h3>
+                <p class="text-xs sm:text-sm text-slate-600">Please wait a moment and do not close or refresh this page.</p>
+            </div>
+
+            <div id="tyDone" class="hidden">
+                <div class="ty-check w-20 h-20 rounded-full bg-accentGold text-vbdDeep mx-auto flex items-center justify-center mb-5 shadow-lg">
+                    <i class="fa-solid fa-check text-3xl"></i>
+                </div>
+                <h3 class="font-display text-2xl sm:text-3xl font-extrabold text-slate-900 mb-2">Thank You!</h3>
+                <p class="text-sm text-slate-600 leading-relaxed mb-6">
+                    Your registration for <span class="font-bold text-vbdForest">The Grand Harmony 2026</span> has been submitted successfully. We look forward to seeing you there!
+                </p>
+                <button type="button" onclick="closeThankYou()"
+                    class="w-full bg-vbdForest hover:bg-vbdDeep text-white font-bold py-3.5 px-6 rounded-xl text-xs sm:text-sm tracking-wider uppercase transition cursor-pointer">
+                    Done
+                </button>
+            </div>
+        </div>
+    </div>
+
     <footer class="bg-white border-t border-slate-200 py-6 mt-10 text-center text-xs text-slate-500 px-4">
         <p>&copy; 2026 Volunteer for Bangladesh (VBD) Dhaka District South. All Rights Reserved.</p>
     </footer>
@@ -714,7 +758,7 @@
             }, 600);
         }
 
-                function updateFeeDisplay(category, upazila = "") {
+        function updateFeeDisplay(category, upazila = "") {
             const amountEl = document.getElementById('feeAmountText');
             const badgeEl = document.getElementById('feeBadge');
             const descEl = document.getElementById('feeDescriptionText');
@@ -910,6 +954,7 @@
             const btn = document.getElementById('submitBtn');
             btn.disabled = true;
             btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin mr-2"></i> Submitting Registration...`;
+            showSubmitting();
 
             const formData = {
                 fullName: fullName,
@@ -944,6 +989,7 @@
                 body: JSON.stringify(formData)
             })
             .then(() => {
+                showThankYou();
                 document.getElementById('vbdRegistrationForm').reset();
                 hideAllBranches();
                 document.getElementById('sub-upazila-role').classList.add('hidden-panel');
@@ -974,6 +1020,7 @@
             })
             .catch(error => {
                 console.error('Submission Error:', error);
+                closeThankYou();
                 alert('An error occurred during submission. Please try again.');
                 btn.disabled = false;
                 btn.innerHTML = `<span>Confirm Registration</span> <i class="fa-solid fa-arrow-right text-xs"></i>`;
@@ -1007,6 +1054,36 @@
                 spawn(document.getElementById('bgNotes'), 18, '#A8FF00', '#2929B5', 22, 54);
             });
         })();
+    </script>
+    <script>
+        function showSubmitting() {
+            document.getElementById('tySubmitting').classList.remove('hidden');
+            document.getElementById('tyDone').classList.add('hidden');
+            document.getElementById('thankYouOverlay').classList.add('show');
+        }
+        function showThankYou() {
+            document.getElementById('tySubmitting').classList.add('hidden');
+            document.getElementById('tyDone').classList.remove('hidden');
+            const box = document.getElementById('tyNotes');
+            box.innerHTML = '';
+            const glyphs = ['\u266A', '\u266B', '\u2669', '\u266C'];
+            for (let i = 0; i < 26; i++) {
+                const n = document.createElement('span');
+                n.className = 'music-note';
+                n.textContent = glyphs[Math.floor(Math.random() * glyphs.length)];
+                n.style.left = (Math.random() * 100) + '%';
+                n.style.top = (60 + Math.random() * 45) + '%';
+                n.style.fontSize = (20 + Math.random() * 34) + 'px';
+                n.style.color = Math.random() > 0.4 ? '#A8FF00' : '#FFFFFF';
+                n.style.setProperty('--note-sway', (Math.random() * 50 - 25) + 'px');
+                n.style.animationDuration = (5 + Math.random() * 5) + 's';
+                n.style.animationDelay = (Math.random() * 2) + 's';
+                box.appendChild(n);
+            }
+        }
+        function closeThankYou() {
+            document.getElementById('thankYouOverlay').classList.remove('show');
+        }
     </script>
 </body>
 </html>
