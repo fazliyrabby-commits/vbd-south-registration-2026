@@ -115,7 +115,7 @@
             50% { height: var(--peak, 110px); transform: translateY(-8px); }
         }
 
-        /* Curtain Overlay */
+        /* Curtain Overlay & Guaranteed Opening Animation */
         #introOverlay {
             position: fixed;
             inset: 0;
@@ -130,296 +130,24 @@
         }
 
         .curtain-panel {
-            position: absolute;
+            position: fixed;
             top: 0;
             bottom: 0;
             width: 50.5%;
             background: linear-gradient(145deg, #0B0924 0%, #19144A 55%, #0F0C2E 100%);
-            z-index: 10;
-            transition: transform 1.15s cubic-bezier(0.77, 0, 0.175, 1);
+            z-index: 110;
+            transition: transform 1.2s cubic-bezier(0.77, 0, 0.175, 1);
             box-shadow: 0 0 60px rgba(0, 0, 0, 0.75);
+            pointer-events: none;
         }
 
         #curtainLeft {
             left: 0;
             border-right: 1.5px solid rgba(158, 240, 26, 0.35);
+            animation: slideLeftCurtain 1.2s cubic-bezier(0.77, 0, 0.175, 1) 0.5s forwards;
         }
 
         #curtainRight {
             right: 0;
             border-left: 1.5px solid rgba(158, 240, 26, 0.35);
-        }
-
-        .curtain-rhythm-accent {
-            position: absolute;
-            top: 15%;
-            bottom: 15%;
-            width: 2px;
-            background: linear-gradient(to bottom, transparent, rgba(158, 240, 26, 0.65), rgba(212, 175, 55, 0.55), transparent);
-            animation: curtainGlow 3s ease-in-out infinite;
-        }
-
-        @keyframes curtainGlow {
-            0%, 100% { opacity: 0.35; transform: scaleY(0.92); }
-            50% { opacity: 0.95; transform: scaleY(1.04); }
-        }
-
-        .curtains-open #curtainLeft {
-            transform: translateX(-100%);
-        }
-
-        .curtains-open #curtainRight {
-            transform: translateX(100%);
-        }
-
-        #revealStage {
-            position: relative;
-            z-index: 5;
-            opacity: 0;
-            transform: scale(0.94) translateY(12px);
-            transition: all 0.9s cubic-bezier(0.16, 1, 0.3, 1);
-        }
-
-        .stage-visible #revealStage {
-            opacity: 1;
-            transform: scale(1) translateY(0);
-        }
-
-        .sparkle {
-            position: absolute;
-            width: 4px;
-            height: 4px;
-            border-radius: 50%;
-            background: #9EF01A;
-            box-shadow: 0 0 8px #9EF01A, 0 0 14px rgba(212, 175, 55, 0.7);
-            opacity: 0;
-            pointer-events: none;
-            animation: floatSparkle 3.8s ease-in-out infinite;
-        }
-
-        @keyframes floatSparkle {
-            0% { transform: translateY(20px) scale(0.4); opacity: 0; }
-            40% { opacity: 0.85; }
-            80% { opacity: 0.45; }
-            100% { transform: translateY(-75px) scale(1.1); opacity: 0; }
-        }
-
-        /* Subtle Ambient Light Orbit on Form Inputs */
-        .harmony-input-wrap {
-            position: relative;
-            border-radius: 0.75rem;
-        }
-
-        .harmony-input {
-            position: relative;
-            z-index: 1;
-            transition: border-color 0.25s ease, box-shadow 0.35s ease, transform 0.2s ease;
-        }
-
-        .harmony-input:focus {
-            border-color: #70B800;
-            box-shadow:
-                0 0 0 3px rgba(158, 240, 26, 0.22),
-                0 0 18px rgba(158, 240, 26, 0.14);
-        }
-
-        .harmony-card {
-            position: relative;
-            background: rgba(255, 255, 255, 0.97);
-            backdrop-filter: blur(10px);
-            transition: transform 0.28s ease, box-shadow 0.35s ease;
-        }
-
-        .harmony-card:hover {
-            box-shadow: 0 12px 28px -8px rgba(11, 9, 36, 0.28);
-        }
-
-        .conditional-panel {
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            overflow: hidden;
-        }
-
-        .hidden-panel {
-            display: none;
-            opacity: 0;
-        }
-
-        .visible-panel {
-            display: block;
-            opacity: 1;
-            animation: fadeInSlide 0.28s ease-out forwards;
-        }
-
-        @keyframes fadeInSlide {
-            from { opacity: 0; transform: translateY(-6px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        .role-card input:checked + .role-card-content {
-            border-color: #14113A;
-            background-color: #F4FCE3;
-            box-shadow: 0 4px 16px rgba(20, 17, 58, 0.12);
-        }
-
-        .role-card input:checked + .role-card-content .check-indicator {
-            background-color: #14113A;
-            border-color: #14113A;
-            color: #9EF01A;
-        }
-    </style>
-</head>
-<body class="ambient-bg text-slate-900 antialiased min-h-screen flex flex-col selection:bg-harmonyLime selection:text-harmonyMidnight">
-
-    <!-- Background Decorative Layers (Pattern, Line Rhythm & Musical Bars) -->
-    <div class="ambient-pattern-layer" aria-hidden="true"></div>
-    <div class="rhythm-wave-layer" aria-hidden="true"></div>
-    <div class="music-eq-bg" id="musicEqBg" aria-hidden="true"></div>
-
-    <!-- CURTAIN REVEAL & WELCOME STAGE -->
-    <div id="introOverlay" onclick="triggerCurtainOpen()">
-        <div id="curtainLeft" class="curtain-panel flex items-center justify-end pr-3 sm:pr-4">
-            <div class="curtain-rhythm-accent"></div>
-        </div>
-        <div id="curtainRight" class="curtain-panel flex items-center justify-start pl-3 sm:pl-4">
-            <div class="curtain-rhythm-accent"></div>
-        </div>
-
-        <div id="sparkleContainer" class="absolute inset-0 z-0 overflow-hidden pointer-events-none"></div>
-
-        <div id="revealStage" onclick="event.stopPropagation()" class="max-w-xl w-full mx-auto text-center px-5 py-8 sm:px-10 sm:py-11 rounded-3xl bg-harmonyIndigo/85 backdrop-blur-xl border border-harmonyLime/30 shadow-2xl">
-            <!-- VBD Logo + Grand Harmony Mnemonic -->
-            <div class="flex flex-wrap items-center justify-center gap-4 sm:gap-6 mb-6">
-                <img src="https://raw.githubusercontent.com/fazliyrabby-commits/white-vbd-logo/main/vbd%20white%20logo.png"
-                     alt="Volunteer for Bangladesh Logo"
-                     class="h-11 sm:h-14 w-auto object-contain drop-shadow-md">
-                <div class="h-8 w-px bg-harmonyLime/35 hidden sm:block"></div>
-                <img src="https://github.com/fazliyrabby-commits/harmoni-logo/blob/main/grand%20logo%404x.png?raw=true"
-                     alt="Grand Harmony Mnemonic"
-                     class="h-12 sm:h-16 w-auto object-contain drop-shadow-lg">
-            </div>
-
-            <div class="inline-block px-3.5 py-1 rounded-full bg-harmonyMidnight/90 border border-harmonyLime/40 text-harmonyLime text-[11px] font-bold uppercase tracking-[0.18em] mb-3">
-                VBD Dhaka District South Presents
-            </div>
-
-            <h1 class="font-display text-2xl sm:text-4xl font-extrabold text-white tracking-tight leading-tight mb-3">
-                Grand Harmony
-            </h1>
-
-            <p class="text-xs sm:text-sm text-indigo-100/85 leading-relaxed max-w-md mx-auto mb-7">
-                Inauguration &amp; Cultural Experience — Be part of the biggest event by VBD Dhaka District South.
-            </p>
-
-            <button type="button" onclick="enterRegistrationPortal()"
-                class="w-full sm:w-auto inline-flex items-center justify-center gap-3 bg-gradient-to-r from-harmonyLime to-lime-400 hover:from-lime-300 hover:to-harmonyLime text-harmonyMidnight font-extrabold text-xs sm:text-sm uppercase tracking-wider px-8 py-4 rounded-xl shadow-lg shadow-black/40 transition-all duration-200 transform hover:-translate-y-0.5 active:scale-95 cursor-pointer">
-                <span>Proceed to Registration</span>
-                <i class="fa-solid fa-arrow-right text-xs"></i>
-            </button>
-        </div>
-    </div>
-
-    <!-- TOP EXECUTIVE HEADER BAR -->
-    <header class="bg-harmonyMidnight/95 backdrop-blur-md text-white border-b border-indigo-900/80 sticky top-0 z-40 shadow-md">
-        <div class="max-w-4xl mx-auto px-4 sm:px-6 py-3 flex items-center justify-between gap-2 sm:gap-4">
-            <div class="flex items-center gap-2.5 sm:gap-3 min-w-0">
-                <img src="https://raw.githubusercontent.com/fazliyrabby-commits/white-vbd-logo/main/vbd%20white%20logo.png"
-                     alt="VBD Logo"
-                     class="h-8 sm:h-10 w-auto object-contain shrink-0">
-                <div class="border-l border-indigo-800/90 pl-2.5 sm:pl-3 truncate">
-                    <span class="block text-[10px] sm:text-xs font-semibold tracking-wider uppercase text-indigo-200/90 truncate">Volunteer for Bangladesh</span>
-                    <span class="block text-xs sm:text-sm font-bold text-white tracking-tight truncate">Dhaka District South</span>
-                </div>
-            </div>
-
-            <div class="flex items-center gap-2 sm:gap-3 shrink-0">
-                <img src="https://github.com/fazliyrabby-commits/harmoni-logo/blob/main/grand%20logo%404x.png?raw=true"
-                     alt="Grand Harmony Logo"
-                     class="h-8 sm:h-10 w-auto object-contain shrink-0">
-                <div class="hidden xs:inline-flex sm:inline-flex items-center text-[11px] sm:text-xs font-semibold text-harmonyLime bg-harmonyIndigo px-2.5 sm:px-3 py-1.5 rounded-lg border border-harmonyLime/35">
-                    <i class="fa-regular fa-calendar-days mr-1.5"></i>Dec 12, 2026
-                </div>
-            </div>
-        </div>
-    </header>
-
-    <!-- MAIN CONTENT CONTAINER -->
-    <main class="relative z-10 flex-grow max-w-3xl w-full mx-auto px-3.5 sm:px-4 py-6 sm:py-10">
-
-        <div class="harmony-card rounded-2xl shadow-lg border border-indigo-100/80 p-5 sm:p-8 mb-6 sm:mb-8 relative overflow-hidden">
-            <div class="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-harmonyMidnight via-harmonyViolet to-harmonyLime"></div>
-            <div class="flex flex-wrap items-center justify-between gap-2 mb-3">
-                <div class="inline-flex items-center space-x-2 bg-lime-50 text-harmonyIndigo border border-lime-300 text-[11px] font-bold px-3 py-1 rounded-md uppercase tracking-wider">
-                    Official Registration Portal
-                </div>
-                <span class="text-[11px] font-semibold text-slate-500">
-                    <i class="fa-regular fa-calendar-days mr-1 text-harmonyViolet"></i>Dec 12, 2026
-                </span>
-            </div>
-            <h2 class="font-display text-xl sm:text-3xl font-extrabold tracking-tight text-harmonyIndigo leading-snug">
-                The Grand Harmony 2026
-            </h2>
-            <p class="mt-2 text-xs sm:text-sm text-slate-600 leading-relaxed">
-                Inauguration &amp; Cultural Experience — Be part of the biggest event by VBD Dhaka District South. Complete your registration below to confirm your seat and event access.
-            </p>
-        </div>
-
-        <form id="vbdRegistrationForm" novalidate class="space-y-6">
-
-            <!-- SECTION 1 -->
-            <section class="harmony-card rounded-2xl shadow-sm border border-indigo-100/80 p-5 sm:p-8">
-                <div class="flex items-center gap-3 mb-6 pb-3.5 border-b border-slate-100">
-                    <div class="w-7 h-7 rounded-lg bg-harmonyIndigo text-harmonyLime flex items-center justify-center font-bold text-xs shrink-0">1</div>
-                    <h3 class="text-sm sm:text-base font-bold text-harmonyIndigo">Personal &amp; Contact Information</h3>
-                </div>
-
-                <div class="space-y-5">
-                    <div>
-                        <label for="fullName" class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">
-                            Full Name <span class="text-red-500">*</span>
-                        </label>
-                        <div class="harmony-input-wrap">
-                            <input type="text" id="fullName" name="fullName" required placeholder="Enter your full legal name"
-                                class="harmony-input w-full px-4 py-3 rounded-xl border border-slate-300 outline-none text-sm bg-white">
-                        </div>
-                    </div>
-
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-5">
-                        <div>
-                            <label for="phone" class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">
-                                Phone Number (WhatsApp) <span class="text-red-500">*</span>
-                            </label>
-                            <div class="harmony-input-wrap">
-                                <input type="tel" id="phone" name="phone" required placeholder="01XXXXXXXXX"
-                                    class="harmony-input w-full px-4 py-3 rounded-xl border border-slate-300 outline-none text-sm bg-white">
-                            </div>
-                        </div>
-
-                        <div>
-                            <label for="email" class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">
-                                Email Address <span class="text-red-500">*</span>
-                            </label>
-                            <div class="harmony-input-wrap">
-                                <input type="email" id="email" name="email" required placeholder="name@example.com"
-                                    class="harmony-input w-full px-4 py-3 rounded-xl border border-slate-300 outline-none text-sm bg-white">
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </section>
-
-            <!-- SECTION 2 -->
-            <section class="harmony-card rounded-2xl shadow-sm border border-indigo-100/80 p-5 sm:p-8">
-                <div class="flex items-center gap-3 mb-6 pb-3.5 border-b border-slate-100">
-                    <div class="w-7 h-7 rounded-lg bg-harmonyIndigo text-harmonyLime flex items-center justify-center font-bold text-xs shrink-0">2</div>
-                    <h3 class="text-sm sm:text-base font-bold text-harmonyIndigo">Designation &amp; Organizational Affiliation</h3>
-                </div>
-
-                <div class="space-y-3">
-                    <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-3">
-                        Select Primary Category <span class="text-red-500">*</span>
-                    </label>
-
-                    <div class="grid grid-cols-1 gap-3" id="categoryGroup">
-                        <label class="role-card cursor-pointer">
-                            <input type="radio" name="primaryCategory" value="Upazila Level" class="sr-only" required onchange="handleCategoryChange(this.value)">
-                            <div class="role-card-content border border-slate-200 rounded-
+            animation: slideRightCurtain 1.2
