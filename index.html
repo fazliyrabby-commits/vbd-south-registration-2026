@@ -714,13 +714,12 @@
             }, 600);
         }
 
-        function updateFeeDisplay(category, upazila = "") {
+                function updateFeeDisplay(category, upazila = "") {
             const amountEl = document.getElementById('feeAmountText');
             const badgeEl = document.getElementById('feeBadge');
             const descEl = document.getElementById('feeDescriptionText');
 
             const leadershipCategories = [
-                'District Board Member',
                 'Division Board Member',
                 'National Board Member',
                 'YDP Team',
@@ -729,29 +728,34 @@
 
             if (category === 'Upazila Level') {
                 if (upazila === 'Dhaka South City Corporation (DSCC)') {
-                    currentCalculatedFee = "400 BDT";
-                    amountEl.textContent = "400 BDT";
+                    currentCalculatedFee = "350 BDT";
+                    amountEl.textContent = "350 BDT";
                     badgeEl.textContent = "DSCC Standard Delegate";
                     descEl.textContent = "Standard registration fee for delegates representing Dhaka South City Corporation (DSCC).";
                 } else if (upazila === 'Keraniganj' || upazila === 'Nawabganj' || upazila === 'Dohar') {
-                    currentCalculatedFee = "350 BDT";
-                    amountEl.textContent = "350 BDT";
+                    currentCalculatedFee = "300 BDT";
+                    amountEl.textContent = "300 BDT";
                     badgeEl.textContent = upazila + " Delegate";
                     descEl.textContent = "Subsidized regional delegate registration fee for " + upazila + " unit.";
                 } else {
                     currentCalculatedFee = "";
                     amountEl.textContent = "Select Upazila Unit";
                     badgeEl.textContent = "Upazila Level";
-                    descEl.textContent = "Please select your specific Upazila above to display your applicable registration fee (400 BDT for DSCC / 350 BDT for Keraniganj, Nawabganj, Dohar).";
+                    descEl.textContent = "Please select your specific Upazila above to display your applicable registration fee (350 BDT for DSCC / 300 BDT for Keraniganj, Nawabganj, Dohar).";
                 }
+            } else if (category === 'District Board Member') {
+                currentCalculatedFee = "350 BDT";
+                amountEl.textContent = "350 BDT";
+                badgeEl.textContent = "District Board Delegate";
+                descEl.textContent = "Standard registration fee for District Board Members.";
             } else if (leadershipCategories.includes(category)) {
                 currentCalculatedFee = "500 BDT+ (Starting Minimum)";
                 amountEl.textContent = "500 BDT (Starting)";
                 badgeEl.textContent = "Executive / Alumni Tier";
                 descEl.textContent = "Minimum contribution starts at 500 BDT. Senior leaders, board members, and alumni are warmly welcome to contribute any higher amount at their discretion.";
             } else if (category === 'General Member / Guest') {
-                currentCalculatedFee = "400 BDT";
-                amountEl.textContent = "400 BDT";
+                currentCalculatedFee = "350 BDT";
+                amountEl.textContent = "350 BDT";
                 badgeEl.textContent = "General / Guest Pass";
                 descEl.textContent = "Standard registration fee for General Members and Invited Guests.";
             }
