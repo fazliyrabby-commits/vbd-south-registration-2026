@@ -31,20 +31,13 @@
         }
     </script>
     <style>
-        :root {
-            --bg-primary-url: url('https://github.com/fazliyrabby-commits/bg-1/blob/main/bg%404x.png?raw=true');
-            --bg-pattern-url: url('https://github.com/fazliyrabby-commits/bg-2-/blob/main/pattern%404x.png?raw=true');
-            --line-rhythm-url: url('https://github.com/fazliyrabby-commits/line-aliment-/blob/main/rythm%404x.png?raw=true');
-        }
-
         .ambient-bg {
-            position: relative;
             background-color: #0B0924;
             background-image:
                 linear-gradient(155deg, rgba(11, 9, 36, 0.90) 0%, rgba(20, 17, 58, 0.86) 55%, rgba(11, 9, 36, 0.93) 100%),
-                var(--bg-primary-url);
-            background-size: cover, cover;
-            background-position: center, center;
+                url('https://github.com/fazliyrabby-commits/bg-1/blob/main/bg%404x.png?raw=true');
+            background-size: cover;
+            background-position: center;
             background-attachment: fixed;
             overflow-x: hidden;
         }
@@ -52,7 +45,7 @@
         .ambient-pattern-layer {
             position: fixed;
             inset: 0;
-            background-image: var(--bg-pattern-url);
+            background-image: url('https://github.com/fazliyrabby-commits/bg-2-/blob/main/pattern%404x.png?raw=true');
             background-size: 520px auto;
             background-repeat: repeat;
             opacity: 0.14;
@@ -69,7 +62,7 @@
         .rhythm-wave-layer {
             position: fixed;
             inset: 0;
-            background-image: var(--line-rhythm-url);
+            background-image: url('https://github.com/fazliyrabby-commits/line-aliment-/blob/main/rythm%404x.png?raw=true');
             background-repeat: no-repeat;
             background-position: center bottom;
             background-size: 115% auto;
@@ -90,7 +83,6 @@
             }
         }
 
-        /* Subtle Musical Equalizer Bars in Background */
         .music-eq-bg {
             position: fixed;
             inset: 0;
@@ -115,7 +107,7 @@
             50% { height: var(--peak, 110px); transform: translateY(-8px); }
         }
 
-        /* Curtain Overlay & Guaranteed Opening Animation */
+        /* Curtain Overlay */
         #introOverlay {
             position: fixed;
             inset: 0;
@@ -130,24 +122,78 @@
         }
 
         .curtain-panel {
-            position: fixed;
+            position: absolute;
             top: 0;
             bottom: 0;
             width: 50.5%;
             background: linear-gradient(145deg, #0B0924 0%, #19144A 55%, #0F0C2E 100%);
-            z-index: 110;
-            transition: transform 1.2s cubic-bezier(0.77, 0, 0.175, 1);
+            z-index: 10;
+            transition: transform 1.15s cubic-bezier(0.77, 0, 0.175, 1);
             box-shadow: 0 0 60px rgba(0, 0, 0, 0.75);
-            pointer-events: none;
         }
 
         #curtainLeft {
             left: 0;
             border-right: 1.5px solid rgba(158, 240, 26, 0.35);
-            animation: slideLeftCurtain 1.2s cubic-bezier(0.77, 0, 0.175, 1) 0.5s forwards;
         }
 
         #curtainRight {
             right: 0;
             border-left: 1.5px solid rgba(158, 240, 26, 0.35);
-            animation: slideRightCurtain 1.2
+        }
+
+        .curtain-rhythm-accent {
+            position: absolute;
+            top: 15%;
+            bottom: 15%;
+            width: 2px;
+            background: linear-gradient(to bottom, transparent, rgba(158, 240, 26, 0.65), rgba(212, 175, 55, 0.55), transparent);
+            animation: curtainGlow 3s ease-in-out infinite;
+        }
+
+        @keyframes curtainGlow {
+            0%, 100% { opacity: 0.35; transform: scaleY(0.92); }
+            50% { opacity: 0.95; transform: scaleY(1.04); }
+        }
+
+        .curtains-open #curtainLeft {
+            transform: translateX(-100%);
+        }
+
+        .curtains-open #curtainRight {
+            transform: translateX(100%);
+        }
+
+        #revealStage {
+            position: relative;
+            z-index: 5;
+            opacity: 0;
+            transform: scale(0.94) translateY(12px);
+            transition: all 0.9s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .stage-visible #revealStage {
+            opacity: 1;
+            transform: scale(1) translateY(0);
+        }
+
+        .sparkle {
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            border-radius: 50%;
+            background: #9EF01A;
+            box-shadow: 0 0 8px #9EF01A, 0 0 14px rgba(212, 175, 55, 0.7);
+            opacity: 0;
+            pointer-events: none;
+            animation: floatSparkle 3.8s ease-in-out infinite;
+        }
+
+        @keyframes floatSparkle {
+            0% { transform: translateY(20px) scale(0.4); opacity: 0; }
+            40% { opacity: 0.85; }
+            80% { opacity: 0.45; }
+            100% { transform: translateY(-75px) scale(1.1); opacity: 0; }
+        }
+
+        .
