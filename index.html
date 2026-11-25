@@ -519,15 +519,99 @@
                     </div>
 
                     <div id="branch-district" class="conditional-panel hidden-panel bg-slate-50 border border-slate-200 rounded-xl p-4 sm:p-5 space-y-4">
-                        <div>
-                            <label for="districtPosition" class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">
-                                District Executive Position <span class="text-red-500">*</span>
-                            </label>
-                            <input type="text" id="districtPosition" name="districtPosition" placeholder="e.g., President, Director of HR, etc."
-                                class="w-full px-4 py-3 rounded-xl border border-slate-300 focus:border-vbdForest focus:ring-2 focus:ring-vbdForest/15 outline-none transition text-sm bg-white">
-                        </div>
-                    </div>
+    <div>
+        <label for="districtPosition" class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">
+            District Executive Position <span class="text-red-500">*</span>
+        </label>
+        <select id="districtPosition" name="districtPosition"
+            class="w-full px-4 py-3 rounded-xl border border-slate-300 focus:border-vbdForest focus:ring-2 focus:ring-vbdForest/15 outline-none transition text-sm bg-white">
+            <option value="" disabled selected>Select your designation</option>
+            <option value="President">President</option>
+            <option value="Vice President">Vice President</option>
+            <option value="General Secretary">General Secretary</option>
+            <option value="Treasurer">Treasurer</option>
+            <option value="Project Officer">Project Officer</option>
+            <option value="Human Resource Officer">Human Resource Officer</option>
+            <option value="Public Relations Officer">Public Relations Officer</option>
+        </select>
+    </div>
 
+    <div>
+        <label for="districtName" class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">
+            Your District <span class="text-red-500">*</span>
+        </label>
+        <input list="districtList" id="districtName" name="districtName" autocomplete="off"
+            placeholder="Type or search your district name"
+            class="w-full px-4 py-3 rounded-xl border border-slate-300 focus:border-vbdForest focus:ring-2 focus:ring-vbdForest/15 outline-none transition text-sm bg-white">
+        <datalist id="districtList">
+            <option value="Bagerhat"></option>
+            <option value="Bandarban"></option>
+            <option value="Barguna"></option>
+            <option value="Barishal"></option>
+            <option value="Bhola"></option>
+            <option value="Bogura"></option>
+            <option value="Brahmanbaria"></option>
+            <option value="Chandpur"></option>
+            <option value="Chapainawabganj"></option>
+            <option value="Chattogram"></option>
+            <option value="Chuadanga"></option>
+            <option value="Cox's Bazar"></option>
+            <option value="Cumilla"></option>
+            <option value="Dhaka District North"></option>
+            <option value="Dhaka District South"></option>
+            <option value="Dinajpur"></option>
+            <option value="Faridpur"></option>
+            <option value="Feni"></option>
+            <option value="Gaibandha"></option>
+            <option value="Gazipur"></option>
+            <option value="Gopalganj"></option>
+            <option value="Habiganj"></option>
+            <option value="Jamalpur"></option>
+            <option value="Jashore"></option>
+            <option value="Jhalokathi"></option>
+            <option value="Jhenaidah"></option>
+            <option value="Joypurhat"></option>
+            <option value="Khagrachhari"></option>
+            <option value="Khulna"></option>
+            <option value="Kishoreganj"></option>
+            <option value="Kurigram"></option>
+            <option value="Kushtia"></option>
+            <option value="Lakshmipur"></option>
+            <option value="Lalmonirhat"></option>
+            <option value="Madaripur"></option>
+            <option value="Magura"></option>
+            <option value="Manikganj"></option>
+            <option value="Meherpur"></option>
+            <option value="Moulvibazar"></option>
+            <option value="Munshiganj"></option>
+            <option value="Mymensingh"></option>
+            <option value="Naogaon"></option>
+            <option value="Narail"></option>
+            <option value="Narayanganj"></option>
+            <option value="Narsingdi"></option>
+            <option value="Natore"></option>
+            <option value="Netrokona"></option>
+            <option value="Nilphamari"></option>
+            <option value="Noakhali"></option>
+            <option value="Pabna"></option>
+            <option value="Panchagarh"></option>
+            <option value="Patuakhali"></option>
+            <option value="Pirojpur"></option>
+            <option value="Rajbari"></option>
+            <option value="Rajshahi"></option>
+            <option value="Rangamati"></option>
+            <option value="Rangpur"></option>
+            <option value="Satkhira"></option>
+            <option value="Shariatpur"></option>
+            <option value="Sherpur"></option>
+            <option value="Sirajganj"></option>
+            <option value="Sunamganj"></option>
+            <option value="Sylhet"></option>
+            <option value="Tangail"></option>
+            <option value="Thakurgaon"></option>
+        </datalist>
+    </div>
+</div>
                     <div id="branch-division" class="conditional-panel hidden-panel bg-slate-50 border border-slate-200 rounded-xl p-4 sm:p-5 space-y-4">
                         <div>
                             <label for="divisionName" class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">
@@ -963,7 +1047,7 @@
                 category: selectedCategory.value,
                 subCategory: 
                     document.getElementById('upazilaName').value || 
-                    document.getElementById('districtPosition').value || 
+                    (document.getElementById('districtPosition').value ? document.getElementById('districtPosition').value + ' | ' + document.getElementById('districtName').value : '') || 
                     document.getElementById('divisionName').value || 
                     document.getElementById('nationalPosition').value || 
                     document.getElementById('ydpTrack').value || 
