@@ -673,6 +673,38 @@
                     </div>
 
                 </div>
+
+                <!-- Separate Parents Option at the Bottom of Section 2 -->
+                <div id="parentsOptionBlock" class="mt-6 pt-5 border-t border-slate-200 space-y-4">
+                    <div class="bg-slate-50 border border-slate-200 rounded-xl p-4 sm:p-5 space-y-4">
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">
+                                Parents
+                            </label>
+                            <p class="text-xs text-slate-500 mb-3">
+                                Will any parent accompany you to the event?
+                            </p>
+                            <div class="grid grid-cols-2 gap-3">
+                                <label class="cursor-pointer flex items-center gap-3 p-3 bg-white border border-slate-200 rounded-xl hover:border-vbdForest transition">
+                                    <input type="radio" name="parentsAttending" value="Yes" onchange="handleParentsChange(this.value)" class="w-4 h-4 accent-vbdForest">
+                                    <span class="text-xs font-bold text-slate-900">Yes</span>
+                                </label>
+                                <label class="cursor-pointer flex items-center gap-3 p-3 bg-white border border-slate-200 rounded-xl hover:border-vbdForest transition">
+                                    <input type="radio" name="parentsAttending" value="No" onchange="handleParentsChange(this.value)" class="w-4 h-4 accent-vbdForest">
+                                    <span class="text-xs font-bold text-slate-900">No</span>
+                                </label>
+                            </div>
+                        </div>
+
+                        <div id="sub-parent-relation" class="conditional-panel hidden-panel pt-4 border-t border-slate-200">
+                            <label for="parentRelation" class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">
+                                Relation <span class="text-red-500">*</span>
+                            </label>
+                            <input type="text" id="parentRelation" name="parentRelation" placeholder="e.g., Father, Mother, or relation"
+                                class="w-full px-4 py-3 rounded-xl border border-slate-300 focus:border-vbdForest focus:ring-2 focus:ring-vbdForest/15 outline-none transition text-sm bg-white">
+                        </div>
+                    </div>
+                </div>
             </section>
 
             <!-- SECTION 3 -->
@@ -842,10 +874,30 @@
             }, 600);
         }
 
+        function handleParentsChange(val) {
+            const relPanel = document.getElementById('sub-parent-relation');
+            if (val === 'Yes') {
+                relPanel.classList.remove('hidden-panel');
+                relPanel.classList.add('visible-panel');
+            } else {
+                relPanel.classList.remove('visible-panel');
+                relPanel.classList.add('hidden-panel');
+                document.getElementById('parentRelation').value = "";
+            }
+
+            const selectedCat = document.querySelector('input[name="primaryCategory"]:checked')?.value || "";
+            const currentUpazila = document.getElementById('upazilaName')?.value || "";
+            if (selectedCat) {
+                updateFeeDisplay(selectedCat, currentUpazila);
+            }
+        }
+
         function updateFeeDisplay(category, upazila = "") {
             const amountEl = document.getElementById('feeAmountText');
             const badgeEl = document.getElementById('feeBadge');
             const descEl = document.getElementById('feeDescriptionText');
+            const parentsYes = document.querySelector('input[name="parentsAttending"]:checked')?.value === 'Yes';
+            const parentFee = parentsYes ? 300 : 0;
 
             const leadershipCategories = [
                 'Division Board Member',
@@ -856,15 +908,21 @@
 
             if (category === 'Upazila Level') {
                 if (upazila === 'Dhaka South City Corporation (DSCC)') {
-                    currentCalculatedFee = "350 BDT";
-                    amountEl.textContent = "350 BDT";
-                    badgeEl.textContent = "DSCC Standard Delegate";
-                    descEl.textContent = "Standard registration fee for delegates representing Dhaka South City Corporation (DSCC).";
+                    const total = 350 + parentFee;
+                    currentCalculatedFee = total + " BDT";
+                    amountEl.textContent = total + " BDT";
+                    badgeEl.textContent = parentsYes ? "DSCC Delegate + Parents (350 + 300)" : "DSCC Standard Delegate";
+                    descEl.textContent = parentsYes
+                        ? "Registration fee for Dhaka South City Corporation (DSCC) delegate (350 BDT) + Parents (300 BDT) = 650 BDT."
+                        : "Standard registration fee for delegates representing Dhaka South City Corporation (DSCC).";
                 } else if (upazila === 'Keraniganj' || upazila === 'Nawabganj' || upazila === 'Dohar') {
-                    currentCalculatedFee = "300 BDT";
-                    amountEl.textContent = "300 BDT";
-                    badgeEl.textContent = upazila + " Delegate";
-                    descEl.textContent = "Subsidized regional delegate registration fee for " + upazila + " unit.";
+                    const total = 300 + parentFee;
+                    currentCalculatedFee = total + " BDT";
+                    amountEl.textContent = total + " BDT";
+                    badgeEl.textContent = parentsYes ? upazila + " Delegate + Parents (300 + 300)" : upazila + " Delegate";
+                    descEl.textContent = parentsYes
+                        ? "Registration fee for " + upazila + " delegate (300 BDT) + Parents (300 BDT) = 600 BDT."
+                        : "Subsidized regional delegate registration fee for " + upazila + " unit.";
                 } else {
                     currentCalculatedFee = "";
                     amountEl.textContent = "Select Upazila Unit";
@@ -1013,6 +1071,8 @@
             const phone = document.getElementById('phone').value.trim();
             const email = document.getElementById('email').value.trim();
             const selectedCategory = document.querySelector('input[name="primaryCategory"]:checked');
+            const parentsVal = document.querySelector('input[name="parentsAttending"]:checked')?.value || "";
+            const parentRelationVal = document.getElementById('parentRelation').value.trim();
             const screenshotInput = document.getElementById('paymentScreenshot');
 
             if (!fullName || !phone || !email) {
@@ -1027,6 +1087,11 @@
 
             if (selectedCategory.value === 'Upazila Level' && !document.getElementById('upazilaName').value) {
                 alert('Please select your Upazila unit.');
+                return;
+            }
+
+            if (parentsVal === 'Yes' && !parentRelationVal) {
+                alert('Please enter the relation for accompanying parents.');
                 return;
             }
 
@@ -1059,6 +1124,8 @@
                     document.getElementById('upazilaBoardPosition').value || 
                     selectedCategory.value,
                 institution: document.getElementById('institutionName').value || document.getElementById('generalAffiliation')?.value || "",
+                parentsAttending: parentsVal,
+                parentRelation: parentsVal === 'Yes' ? parentRelationVal : "",
                 feeTier: currentCalculatedFee,
                 screenshotName: uploadedScreenshotName,
                 screenshotData: uploadedScreenshotBase64
@@ -1081,6 +1148,7 @@
                 document.getElementById('sub-upazila-ir-inst').classList.add('hidden-panel');
                 const genAff = document.getElementById('sub-upazila-general-aff');
                 if (genAff) genAff.classList.add('hidden-panel');
+                document.getElementById('sub-parent-relation').classList.add('hidden-panel');
                 document.getElementById('uploadPlaceholder').classList.remove('hidden');
                 document.getElementById('uploadSelected').classList.add('hidden');
                 document.getElementById('feeAmountText').textContent = "Select Category Above";
